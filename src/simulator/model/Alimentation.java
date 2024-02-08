@@ -2,6 +2,6 @@ package simulator.model;
 
 public class Alimentation {
 
-	public enum Diet{HERVIVORE, CARNIVORE};
+	public enum Diet{HERVIBORE, CARNIVORE};
 	
 }

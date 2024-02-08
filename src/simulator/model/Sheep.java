@@ -15,7 +15,7 @@ public class Sheep extends Animal{
 	public Sheep(SelectionStrategy mate_strategy, SelectionStrategy danger_strategy,
 			Vector2D pos) {
 		
-		super("Sheep",Diet.HERVIVORE,40.0, 35.0, mate_strategy,pos);
+		super("Sheep",Diet.HERVIBORE,40.0, 35.0, mate_strategy,pos);
 		
 		_danger_strategy = danger_strategy;
 		_danger_source = null;
@@ -88,11 +88,10 @@ public class Sheep extends Animal{
 				else {
 					if (this._danger_source.get_position().distanceTo
 							(this.get_position())> this._sight_range) {
-					/*	this._danger_source = 
+						this._danger_source = 
 								this._danger_strategy.select(this, 
-										this._region_mngr.get_animals_in_range(this,
-												this._danger_strategy));
-					*/ //ARREGLAR, FALLA
+										this._region_mngr.get_animals_in_range(this, null));//(Animal a) -> (a.get_diet() == Diet.HERVIBORE));
+					 //ARREGLAR, FALLA
 					// Asi es como funciona el Predicate (un ejemplo, luego se borra):
 					Predicate<Animal> p = (animal) -> (animal.get_diet() == Diet.CARNIVORE) ;
 					}
