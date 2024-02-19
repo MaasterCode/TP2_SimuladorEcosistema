@@ -152,4 +152,15 @@ public class Vector2D {
 		return "[" + _x + "," + _y + "]";
 	}
 
+	public void adjust(double width, double height) {
+		while (_x >= width) _x = (_x - width);
+		while (_x < 0) _x = (_x + width);
+		while (_y >= height) _y = (_y - height);
+		while (_y < 0) _y = (_y + height);
+	}
+	
+	public boolean outOfBound(double width, double height) {
+		return (_x > width || _y > height);
+	}
+	
 }

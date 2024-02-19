@@ -204,6 +204,11 @@ public abstract class Animal implements Entity, Animalnfo {
 
 	}
 	
+	protected boolean isOutOfBounders() {
+		return this._pos.getX() > this._region_mngr.get_width() || this._pos.getY() > this._region_mngr.get_height() 
+				|| this._pos.getX() < 0.0 || this._pos.getY() < 0.0;
+	}
+	
 	public JSONObject as_JSON() {
 		JSONObject value = new JSONObject()
 				 .put("pos", _pos)
