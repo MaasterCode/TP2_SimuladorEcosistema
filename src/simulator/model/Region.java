@@ -10,7 +10,8 @@ import simulator.model.Alimentation.Diet;
 public abstract class Region implements Entity, FoodSupplier, RegionInfo{
 
 	protected List<Animal> _animal_list;
-	
+	// En vez de hacer nHerbivores podemos hacer dos atributos nHerb y nCarn para tener directamente la
+	// n de herbivoros o carnivoros.
 	public Region() {
 		// Inicializa los animales
 		// Comprobar si se hace así
@@ -20,6 +21,8 @@ public abstract class Region implements Entity, FoodSupplier, RegionInfo{
 	
 	// Añade el animal del parámetro al final de la lista.
 	public final void add_animal(Animal a) {
+		
+		
 		this._animal_list.add(a);
 	}
 	

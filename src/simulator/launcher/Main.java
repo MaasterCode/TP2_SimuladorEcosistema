@@ -11,13 +11,84 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.json.JSONObject;
-import org.json.JSONTokener;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import simulator.misc.Vector2D;
 
 import simulator.misc.Utils;
+import simulator.model.Animal;
+import simulator.model.Animalnfo;
+import simulator.model.Sheep;
+import simulator.view.SimpleObjectViewer;
+import simulator.view.SimpleObjectViewer.ObjInfo;
 
 public class Main {
 
-	private enum ExecMode {
+	
+	
+	public static void main(String[] args) {
+        List<Animal> l = new LinkedList<>();
+        for (int i = 0; i < 200; i++) {
+            double x = Utils._rand.nextDouble(800);
+            double y = Utils._rand.nextDouble(600);
+            Vector2D v = new Vector2D(x, y);
+            l.add(new Sheep(null, null, new Vector2D(v)));
+        }
+        SimpleObjectViewer view = new SimpleObjectViewer ("[ECOSYSTEM]", 800, 600, 15, 20);
+        double dt = 0.003;
+        double time = 0.0;
+        while (time < 100) {
+            time += dt;
+            for (Animal a : l) {
+                a.update(dt);
+                view.update(to_animals_info(l));
+            }
+        }
+    }
+
+    private static List<ObjInfo> to_animals_info(List<? extends Animalnfo> animals) {
+        List<ObjInfo> ol = new ArrayList<>(animals.size());
+        for (Animalnfo a : animals)
+            ol.add(new ObjInfo(a.get_genetic_code(), 
+                    (int) a.get_position().getX(), 
+                        (int) a.get_position().getY(), (int)Math.round(a.get_age())+2));
+        return ol;
+    }
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+/*	private enum ExecMode {
 		BATCH("batch", "Batch mode"), GUI("gui", "Graphical User Interface mode");
 
 		private String _tag;
@@ -162,4 +233,5 @@ public class Main {
 			e.printStackTrace();
 		}
 	}
+	*/
 }
