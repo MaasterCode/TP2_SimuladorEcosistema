@@ -1,4 +1,4 @@
-package factories;
+package simulator.factories;
 
 import java.util.List;
 
