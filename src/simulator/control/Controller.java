@@ -1,5 +1,9 @@
 package simulator.control;
 
+import java.io.OutputStream;
+
+import org.json.JSONObject;
+
 import simulator.model.Simulator;
 
 public class Controller {
