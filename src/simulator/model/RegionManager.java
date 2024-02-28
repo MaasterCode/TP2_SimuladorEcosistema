@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 import org.json.JSONObject;
+import org.json.JSONArray;
 
 public class RegionManager implements AnimalMapView{
 
@@ -28,7 +29,7 @@ public class RegionManager implements AnimalMapView{
 		_height = height;
 		_region_width = _width/cols;
 		_region_height = _height/rows;
-		_regions = new DefaultRegion[_region_width][_region_height];
+		_regions = new DefaultRegion[_rows][_cols];
 		//Inicializar _animal_region con una estructura de datos adecuada, ver si es así:
 		_animal_region = new HashMap<Animal,Region>();
 	}
@@ -61,44 +62,62 @@ public class RegionManager implements AnimalMapView{
 	
 	@Override
 	public double get_food(Animal a, double dt) {
-		// TODO Auto-generated method stub
-		return 0;
+		return this._animal_region.get(a).get_food(a, dt);
 	}
 
 	@Override
-	public List<Animal> get_animals_in_range(Animal e, Predicate<Animal> filter) {
-		List<Animal> AnimalsInRange = new ArrayList<>();
-		
-		// Acá se miran primero las regiones cercanas a las del animal e únicamente,
-		// para recorrer sus listas de animales y haciendo una condicion que cumpla
-		// la funcion animalInRange(a,b) y filter.test(a).
-		
-		return null;
+	public List<Animal> get_animals_in_range(Animal a, Predicate<Animal> filter) {
+	    List<Animal> animalsInRange = new ArrayList<>();
+
+	    // X's e Y's que están dentro del rango de visión del animal "a", es decir, las posiciones mínimas y máximas de la lista de regiones que están dentro del rango de visión.
+	    int minX = Math.max(0, (int) (a.get_position().getX() - a.get_sight_range()) / get_region_width());
+	    int minY = Math.max(0, (int) (a.get_position().getY() - a.get_sight_range()) / get_region_height());
+	    int maxX = Math.min(get_cols(), (int) (a.get_position().getX() + a.get_sight_range()) / get_region_width());
+	    int maxY = Math.min(get_rows(), (int) (a.get_position().getY() + a.get_sight_range()) / get_region_height());
+
+	    // Vamos mirando todas las regiones entre las mínimas y máximas posiciones que cumplen lo anterior.
+	    for (int i = minX; i < maxX; i++) {
+	        for (int j = minY; j < maxY; j++) {
+	            Region region = _regions[i][j];
+	        
+	            if (region != null) {
+	             
+	                for (Animal animal : region.getAnimals()) {
+	                    // Está en el rango de visión del animal? && cumple la condición del filter?
+	                    if (animalInRange(a, animal) && filter.test(animal)) 
+	                        animalsInRange.add(animal);
+	                    
+	                }
+	            }
+	        }
+	    }
+	    return animalsInRange;
 	}
-	
+
 	public boolean animalInRange(Animal a, Animal b) {
-		if (a.get_position().distanceTo(b.get_position()) < a.get_sight_range())
-			return true;
-		else
-			return false;
+	    return a.get_position().distanceTo(b.get_position()) < a.get_sight_range();
 	}
+
+	
+	
 	
 	public void set_region(int row, int col, Region r) {
 		
+		// Si las fila y columna que nos pasan son posiciones válidas de la matriz de regiones
 		if ((row >= 0 && row <= this._rows) && (col >= 0 && col <= this._cols)) {
-			
+			// Guardamos la región que queremos cambiar en una variable auxiliar
 			Region aux = this._regions[row][col];
-			
+			// Igualamos la región a cambiar a la nueva región
 			this._regions[row][col] = r;
 			
 			for (Animal a : aux.getAnimals()) {
-				
+				// Metemos todos los animales de la región vieja a la nueva en el mapa _animal_region y los añadimos a la región nueva.
 				_animal_region.put(a, this._regions[row][col]);
 				
 				this._regions[row][col].add_animal(a);
 				
 			}
-			
+			// Borramos, por si acaso, la region vieja.
 			aux._animal_list.clear();
 			
 		}
@@ -107,52 +126,89 @@ public class RegionManager implements AnimalMapView{
 	}
 	
 	public void register_animal(Animal a) {
-		//Revisar, probablemente esté mal
-		int i = 0;
-		int j = 0;
-		boolean encontrado = false;
+	
+	
+		// Calculamos la fila y columna en la que está el animal
+		int row = (int) a.get_position().getX()/this._region_height;
+		int col = (int) a.get_position().getY()/this._region_width;
 		
-		while (i < this._rows && !encontrado) {
-			
-			j = 0;
-			
-			while(j < this._cols && !encontrado) {
-				/*
-				 * Si la pos del animal está dentro del height y width de la region que estamos mirando
-				 * encontrado = true*/
-				if (!a.get_position().outOfBound((i+1)*this._region_height, (j+1)*this._region_width)) {
-					encontrado = true;
-				}
-				
-				j++;
-			}
-			
-			
-			i++;
-		}
+		_regions[row][col].add_animal(a);
 		
-		if (encontrado)
-			_regions[i][j].add_animal(a);
+		this._animal_region.put(a, _regions[row][col]);
 		
 	}
 	
 	public void unregister_animal(Animal a) {
 		
+		this._animal_region.get(a).remove_animal(a);;
 		
+		this._animal_region.remove(a);
+		
+	
 		
 	}
 	
 	public void update_animal_region(Animal a) {
+		int row = (int) a.get_position().getX()/this._region_height;
+		int col = (int) a.get_position().getY()/this._region_width;
+		
+		
+		Region oldR = _animal_region.get(a);
+		Region check = _regions[row][col];
+		
+		if (oldR == null ||!oldR.equals(check)) {
+			
+			this._animal_region.put(a, check);
+			
+			if (oldR != null) 
+				this._animal_region.remove(a, oldR);	
+			
+		}
 		
 	}
 	
 	public void update_all_regions(double dt) {
 		
+		for (int i = 0; i  < _rows; i++) {
+			for (int j = 0; j < _cols; j++) {
+				
+				_regions[i][j].update(dt);
+				
+			}
+		}
+		
 	}
 
 	public JSONObject as_JSON() {
-		return null;
+	    JSONObject rs = new JSONObject(); // Objeto JSON para almacenar todas las regiones
+	    
+	    JSONArray rArray = new JSONArray(); // Array JSON para almacenar las regiones individuales
+	    
+	    for (int i = 0; i < _rows; i++) {
+	        for (int j = 0; j < _cols; j++) {
+	            JSONObject r = new JSONObject(); // Objeto JSON para representar cada región
+	            
+	            r.put("row", i); // Agregar la fila de la región al objeto JSON
+	            r.put("col", j); // Agregar la columna de la región al objeto JSON
+	            
+	            Region region = _regions[i][j]; // Obtener la región en la fila i y columna j
+	            
+	            if (region != null) {
+	                JSONObject dataJSON = region.as_JSON(); // Obtener la representación JSON de la región
+	                r.put("data", dataJSON); // Agregar los datos de la región al objeto JSON
+	            } else {
+	                r.put("data", JSONObject.NULL); // Si la región está vacía, agregar un valor nulo
+	            }
+	            
+	            rArray.put(r); // Agregar el objeto JSON de la región al array de regiones
+	        }
+	    }
+	    
+	    rs.put("regiones", rArray); // Agregar el array de regiones al objeto JSON principal
+	    
+	    return rs; // Devolver el objeto JSON que representa todas las regiones
 	}
+
 	
 	
 }
