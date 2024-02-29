@@ -3,6 +3,8 @@ package simulator.model;
 import java.util.List;
 import org.json.JSONObject;
 
+import simulator.factories.Factory;
+
 public class Simulator {
 	
 	private RegionManager reg_manager;
@@ -15,11 +17,16 @@ public class Simulator {
 		this.current_time = 0.0;
 	}
 	
-	private void set_region(int row, int col, Region r) {
+	// CAMBIAR A PRIVATE UNA VEZ AÑADIDAS LAS FACTORIAS
+	public void set_region(int row, int col, Region r) {
 		reg_manager.set_region(row, col, r);
 	}
+	// CAMBIAR A "void set_region(int row, int col, JSONObject r_json)" UNA VEZ AÑADIDAS LAS FACTORIAS
+	public void set_region(int row, int col, JSONObject r_json) {
+		
+	}
 	
-	void set_region(int row, int col, JSONObject r_json) {
+	public void add_animal(Animal a) {
 		
 	}
 	
