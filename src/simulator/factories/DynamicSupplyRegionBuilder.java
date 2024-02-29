@@ -4,7 +4,7 @@ import org.json.JSONObject;
 
 import simulator.model.DynamicSupplyRegion;
 
-public class DynamicSupplyRegionBuilder<DynamicSupplyRegion> extends Builder<DynamicSupplyRegion> {
+public class DynamicSupplyRegionBuilder extends Builder<DynamicSupplyRegion> {
 
 	public DynamicSupplyRegionBuilder() {
 		super("DynamicSupplyRegion", "");
@@ -13,8 +13,16 @@ public class DynamicSupplyRegionBuilder<DynamicSupplyRegion> extends Builder<Dyn
 
 	@Override
 	protected DynamicSupplyRegion create_instance(JSONObject data) {
-		// TODO Auto-generated method stub
-		return null;
+		double factor = 2.0;
+		double food = 1000;
+		if (data.has("factor")) {
+			factor = data.getDouble("factor");
+		}
+		
+		if (data.has("food")) {
+			food = data.getDouble("food");
+		}
+		return new DynamicSupplyRegion(factor, food);
 	}
 
 }

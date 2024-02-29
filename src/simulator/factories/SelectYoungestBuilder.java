@@ -3,7 +3,7 @@ package simulator.factories;
 import org.json.JSONObject;
 import simulator.model.SelectYoungest;
 
-public class SelectYoungestBuilder<SelectYoungest> extends Builder<SelectYoungest> {
+public class SelectYoungestBuilder extends Builder<SelectYoungest> {
 
 	public SelectYoungestBuilder() {
 		super("SelectYoungest", "");
@@ -13,7 +13,7 @@ public class SelectYoungestBuilder<SelectYoungest> extends Builder<SelectYounges
 	@Override
 	protected SelectYoungest create_instance(JSONObject data) {
 		// TODO Auto-generated method stub
-		return null;
+		return new SelectYoungest();
 	}
 
 }

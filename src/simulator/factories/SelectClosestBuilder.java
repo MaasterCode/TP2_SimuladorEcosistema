@@ -3,7 +3,7 @@ package simulator.factories;
 import org.json.JSONObject;
 import simulator.model.SelectClosest;
 
-public class SelectClosestBuilder<SelectClosest> extends Builder<SelectClosest> {
+public class SelectClosestBuilder extends Builder<SelectClosest> {
 
 	public SelectClosestBuilder() {
 		super("SelectClosest", "");
@@ -13,7 +13,7 @@ public class SelectClosestBuilder<SelectClosest> extends Builder<SelectClosest> 
 	@Override
 	protected SelectClosest create_instance(JSONObject data) {
 		// TODO Auto-generated method stub
-		return null;
+		return new SelectClosest();
 	}
 
 }

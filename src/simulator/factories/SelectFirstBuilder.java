@@ -4,7 +4,7 @@ import org.json.JSONObject;
 
 import simulator.model.SelectFirst;
 
-public class SelectFirstBuilder<SelectFirst> extends Builder<SelectFirst>{
+public class SelectFirstBuilder extends Builder<SelectFirst>{
 
 	public SelectFirstBuilder() {
 		super("SelectFirst", "");
@@ -14,7 +14,7 @@ public class SelectFirstBuilder<SelectFirst> extends Builder<SelectFirst>{
 	@Override
 	protected SelectFirst create_instance(JSONObject data) {
 		// TODO Auto-generated method stub
-		return null;
+		return new SelectFirst();
 	}
 
 }

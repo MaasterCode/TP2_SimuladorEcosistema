@@ -3,7 +3,7 @@ package simulator.factories;
 import org.json.JSONObject;
 import simulator.model.DefaultRegion;
 
-public class DefaultRegionBuilder<DefaultRegion> extends Builder<DefaultRegion> {
+public class DefaultRegionBuilder extends Builder<DefaultRegion> {
 
 	public DefaultRegionBuilder() {
 		super("DefaultRegion", "");
@@ -13,7 +13,7 @@ public class DefaultRegionBuilder<DefaultRegion> extends Builder<DefaultRegion> 
 	@Override
 	protected DefaultRegion create_instance(JSONObject data) {
 		// TODO Auto-generated method stub
-		return null;
+		return new DefaultRegion();
 	}
 
 }
