@@ -110,6 +110,9 @@ public abstract class Animal implements Entity, Animalnfo {
 	public Vector2D	get_destination() {
 		return _dest;
 	}
+	public AnimalMapView get_region_manager() {
+		return _region_mngr;
+	}
 	public boolean is_pregnant() {
 		return (_baby != null);
 	}
@@ -175,11 +178,7 @@ public abstract class Animal implements Entity, Animalnfo {
 		else {
 			 x = _pos.getX();
 			 y = _pos.getY();
-			
-			while (x >= _region_mngr.get_width()) x = (x - _region_mngr.get_width());
-			while (x < 0) x = (x + _region_mngr.get_width());
-			while (y >= _region_mngr.get_height()) y = (y - _region_mngr.get_height());
-			while (y < 0) y = (y + _region_mngr.get_height());
+			 this._pos.adjust(_region_mngr.get_width(), _region_mngr.get_height());
 
 			_pos = new Vector2D(x,y);
 			
