@@ -48,7 +48,7 @@ public class Simulator {
 	
 	public void advance(double dt) {
 		this.current_time += dt;
-		List<Animal> deadAnimals =  this.animal_list.stream().filter(animal -> animal.get_state() == AnimalState.State.DEAD).toList();
+		List<Animal> deadAnimals =  this.animal_list.stream().filter(animal -> animal.get_state() == State.DEAD).toList();
 		this.animal_list.removeAll(deadAnimals);
 		for(Animal a : deadAnimals) {
 			this.reg_manager.unregister_animal(a);

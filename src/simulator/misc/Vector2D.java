@@ -159,8 +159,11 @@ public class Vector2D {
 		while (_y < 0) _y = (_y + height);
 	}
 	
-	public boolean outOfBound(double width, double height) {
+	public boolean outOfUpperLimits(double width, double height) {
 		return (_x > width || _y > height);
+	}
+	public boolean outOfLowerLimits() {
+		return (_x < 0.0 || _y < 0.0);
 	}
 	
 }

@@ -3,8 +3,6 @@
 import simulator.misc.Utils;
 import simulator.misc.Vector2D;
 import simulator.model.Alimentation.Diet;
-import simulator.model.AnimalState.State;
-
 
 /* *
  * 
@@ -26,7 +24,7 @@ public class Sheep extends Animal{
 	public Sheep(SelectionStrategy mate_strategy, SelectionStrategy danger_strategy,
 			Vector2D pos) {
 		
-		super("Sheep",Diet.HERBIVORE,40.0, 35.0, mate_strategy,pos);
+		super("sheep",Diet.HERBIVORE,40.0, 35.0, mate_strategy,pos);
 		
 		_danger_strategy = danger_strategy;
 		_danger_source = null;
@@ -42,11 +40,12 @@ public class Sheep extends Animal{
 	@Override
 	public void update(double dt) {
 		
-	/*1.*/ // Es que si el estado es DEAD no haga nada, se hace ya en changeState(dt);	
+	/*1.*/ 	if (this._state.equals(State.DEAD))
+				return;
 		
 	/*2.*/	this.changeState(dt);
 			
-	/*3.*/	if (this.isOutOfBounders()) {
+	/*3.*/	if (this._pos.outOfLowerLimits() || this._pos.outOfUpperLimits(this._region_mngr.get_width(), this._region_mngr.get_height())) {
 		
 				this._pos.adjust(this._region_mngr.get_width(), this._region_mngr.get_height());
 				this._state = State.NORMAL;
@@ -64,69 +63,86 @@ public class Sheep extends Animal{
 		}
 	}
 	
-	private void normalState(double dt) {
-		if (this._pos.distanceTo(this._dest) < 8.0) {
-			int max;
-			if (this._region_mngr.get_height() < this._region_mngr.get_width())
-				max = this._region_mngr.get_width();
-			else
-				max = this._region_mngr.get_height();
-			this._dest = new Vector2D(Vector2D.get_random_vector(0, max));
-			
-		}
-		this.move(this._speed*dt*Math.exp((this._energy-100.0)*0.007));
-		this._age += dt;
-		if (this._energy - 20.0*dt >= 0)
-			this._energy -= 20.0*dt;
-		if (this._desire + 40.0*dt <= 100)
-			this._desire += 40.0*dt;
+	private void normal_logic(double dt) {
 		
-		if (this._danger_source == null) {
-			this._danger_source = this._danger_strategy.select
-					(this, this._region_mngr.get_animals_in_range
-							(this, animal -> animal.get_diet() == Diet.CARNIVORE));
-		}
-	}
+	/*1.1*/	if (this._pos.distanceTo(this._dest) < 8.0) {
+				int max;
+				if (this._region_mngr.get_height() < this._region_mngr.get_width())
+					max = this._region_mngr.get_width();
+				else
+					max = this._region_mngr.get_height();
+				
+				this._dest = new Vector2D(Vector2D.get_random_vector(0, max));
+			}
 	
-	private void dangerState(double dt) {
-		if (this._danger_source != null && this._state == State.DEAD)
+	/*1.2*/	this.move(this._speed*dt*Math.exp((this._energy-100.0)*0.007));
+	
+	/*1.3*/	this._age += dt;	
+		
+	/*1.4*/	double newEnergy = this._energy- 20.0*dt;
+			this._energy =Utils.constrain_value_in_range(newEnergy, 0, 100);
+			
+	/*1.5*/	double newDesire = this._desire + 40.0*dt;
+			this._desire = Utils.constrain_value_in_range(newDesire, 0, 100);
+		
+		}
+	
+	
+	private void danger_logic(double dt) {
+		
+	/*1.*/	if (this._danger_source != null && this._danger_source.get_state() == State.DEAD)
 			this._danger_source = null;
 		
-		if (this._danger_source == null) 
-			this.normalState(dt);
+	/*2.*/	if (this._danger_source == null) 
+			this.normal_logic(dt);
 		
 		
-		else if (this._danger_source != null) {
-			this._dest = this._pos.plus(_pos.minus
+			else {
+	/*2.1*/		this._dest = this._pos.plus(_pos.minus
 					(_danger_source.get_position()).direction());
-			this.move(2.0*this._speed*dt*Math.exp((this._energy-100.0)*0.007));
-			this._age += dt;
-			if (this._energy - 20.0*1.2*dt >= 0)
-				this._energy -= 20.0*1.2*dt;
-			if (this._desire + 40.0*dt <= 100)
-				this._desire += 40.0*dt;
-		}
+			
+	/*2.2*/		this.move(2.0*this._speed*dt*Math.exp((this._energy-100.0)*0.007));
+			
+	/*2.3*/		this._age += dt;
+			
+	/*2.4*/		double newEnergy = this._energy- 20.0*dt*1.2;
+				this._energy =Utils.constrain_value_in_range(newEnergy, 0, 100);
+	
+	/*2.5*/		double newDesire = this._desire + 40.0*dt;
+				this._desire = Utils.constrain_value_in_range(newDesire, 0, 100);
+	
+			}
 		
-		if (this._danger_source == null) {
-			if (this._desire < 65.0)
-				this._state = State.NORMAL;
-			else
-				this._state = State.MATE;
-		}
 		
-		else {
-			if (this._danger_source.get_position().distanceTo
-					(this.get_position())> this._sight_range) {
-				this._danger_source = 
+	/*3.*/	
+	 /*3.1*/		if (this._danger_source == null || this._danger_source.get_position().distanceTo
+						(this.get_position())> this._sight_range) {
+		 /*3.1.1*/		this._danger_source = 
 						this._danger_strategy.select(this, 
 								this._region_mngr.get_animals_in_range
 								(this, animal -> animal.get_diet() == Diet.CARNIVORE));
-	
-			}
-		}
+		
+		 /*3.1.2*/		 if (this._danger_source == null) {
+			/*3.1.2.1*/		
+								if (this._desire < 65.0) {
+									this._state = State.NORMAL;
+									this._danger_source = null;
+									this._mate_target = null;
+								}
+									
+								else {
+									this._state = State.MATE;
+									this._danger_source = null;
+								}
+				
+					}
+				
+					}
+			
+		
 	}
 	
-	private void mateState(double dt) {
+	private void mate_logic(double dt) {
 		
 	/*1.*/		if (this._mate_target != null) {
 				
@@ -141,7 +157,7 @@ public class Sheep extends Animal{
 								(this, animal -> animal.get_genetic_code() == "sheep"));
 						if (this._mate_target == null)	{
 							
-							this.normalState(dt);
+							this.normal_logic(dt);
 						}
 							
 						else {
@@ -150,10 +166,11 @@ public class Sheep extends Animal{
 			/*2.1*/			this._dest = this._mate_target.get_position();
 			/*2.2*/			this.move(2.0*this._speed*dt*Math.exp((this._energy-100.0)*0.007));
 			/*2.3*/			this._age += dt;
-			/*2.4*/			if (this._energy - 20.0*dt*1.2 >= 0)
-								this._energy -= 20.0*dt*1.2;
-			/*2.5*/			if (this._desire + 40.0*dt <= 100)
-								this._desire += 40.0*dt;
+			/*2.4*/			double newEnergy = this._energy- 20.0*dt*1.2;
+							this._energy =Utils.constrain_value_in_range(newEnergy, 0, 100);
+			
+			/*2.5*/			double newDesire = this._desire + 40.0*dt;
+							this._desire = Utils.constrain_value_in_range(newDesire, 0, 100);
 						
 			/*2.6*/			if (this._pos.distanceTo(this._mate_target.get_position()) < 8.0) {
 				/*2.6.1*/		this._desire = 0.0;
@@ -172,13 +189,21 @@ public class Sheep extends Animal{
 				
 			}
 					
-			if (this._danger_source == null) {
+	/*3.*/		if (this._danger_source == null) {
 				
-				this._danger_source = this._danger_strategy.select
+					this._danger_source = this._danger_strategy.select
 						(this, this._region_mngr.get_animals_in_range
 								(this,animal -> animal.get_diet() == Diet.CARNIVORE ));
-				
-				
+			}
+			
+	/*4.*/		if (this._danger_source != null) {
+					this._state = State.DANGER;
+					this._mate_target = null;
+				}
+		
+				else {
+					if (this._desire < 65.0)
+						this._state = State.NORMAL;
 			}
 	}
 	
@@ -191,38 +216,26 @@ public class Sheep extends Animal{
 			break;
 		case NORMAL:
 			
-			this.normalState(dt);
-			
+			this.normal_logic(dt);
+			if (this._danger_source == null) {
+				this._danger_source = this._danger_strategy.select
+						(this, this._region_mngr.get_animals_in_range
+								(this, animal -> animal.get_diet() == Diet.CARNIVORE));
+			}
 			if (this._danger_source != null){
 				this._state = State.DANGER;
+				this._mate_target = null;
 			} 
-			else if (this._desire >= 65.0) {
+			else if (this._desire > 65.0) {
 				this._state = State.MATE;
+				this._danger_source = null;
 			}
-			
+			break;
 		case DANGER:
-			this.dangerState(dt);	
-			
-			 if (this._danger_source == null) {
-				if (this._desire < 65.0)
-					this._state = State.NORMAL;
-				else
-					this._state = State.MATE;
-			}
-				
-		
+			this.danger_logic(dt);	
+			break;
 		case MATE:
-	
-			this.mateState(dt);
-			
-			if (this._danger_source != null) {
-				this._state = State.DANGER;
-			}
-			else {
-				if (this._desire < 65.0)
-					this._state = State.NORMAL;
-			}
-			
+			this.mate_logic(dt);
 			break;
 		default:
 			break;

@@ -30,27 +30,22 @@ public abstract class Animal implements Entity, Animalnfo {
 			double init_speed, SelectionStrategy mate_strategy, Vector2D pos)
 			throws IllegalArgumentException{
 		
-		if (genetic_code != null && genetic_code != "") {
-			_genetic_code = genetic_code;
-		}
-		else
+		if (genetic_code == "")
 			throw new IllegalArgumentException("genetic code cannot be empty.");
 		
-		if (sight_range > 0)
-			_sight_range = sight_range;
-		else
+		if (sight_range < 0)
 			throw new IllegalArgumentException("sight has to be a positive number higher than 0.");
 		
-		if (init_speed > 0)
-			_speed = Utils.get_randomized_parameter(init_speed, 0.1);
-		else
+		if (init_speed < 0)
 			throw new IllegalArgumentException("speed has to be a positive number higher than 0.");
 		
-		if (mate_strategy != null)
-			_mate_strategy = mate_strategy;
-		else
+		if (mate_strategy == null)
 			throw new IllegalArgumentException("mate strategy cannot be null.");
 		
+		_genetic_code = genetic_code;
+		_sight_range = sight_range;
+		_speed = Utils.get_randomized_parameter(init_speed, 0.1);
+		_mate_strategy = mate_strategy;
 		_state = State.NORMAL;
 		_energy = 100.0;
 		_desire = 0.0;
@@ -59,7 +54,7 @@ public abstract class Animal implements Entity, Animalnfo {
 		_baby = null;
 		_region_mngr = null;
 		_age = 0;
-		
+		_diet = diet;
 		
 	}
 	protected Animal(Animal p1, Animal p2) {
@@ -171,30 +166,25 @@ public abstract class Animal implements Entity, Animalnfo {
 		double x,y;
 		
 		if (_pos == null) {
-			 x = Utils._rand.nextDouble(0, _region_mngr.get_width());
-			 y = Utils._rand.nextDouble(0, _region_mngr.get_height());
+			 x = Utils._rand.nextDouble(0, _region_mngr.get_width()-1);
+			 y = Utils._rand.nextDouble(0, _region_mngr.get_height()-1);
 			_pos = new Vector2D(x,y);
 		}
-		else {
-			 x = _pos.getX();
-			 y = _pos.getY();
+		else
 			 this._pos.adjust(_region_mngr.get_width(), _region_mngr.get_height());
 
-			_pos = new Vector2D(x,y);
-			
-		}
-		 x = Utils._rand.nextDouble(0, _region_mngr.get_width());
-		 y = Utils._rand.nextDouble(0, _region_mngr.get_height());
+		
+		 x = Utils._rand.nextDouble(0, _region_mngr.get_width()-1);
+		 y = Utils._rand.nextDouble(0, _region_mngr.get_height()-1);
 		_dest = new Vector2D(x,y);
-		
-		
-		
 		
 		
 	}
 
-	Animal deliver_baby() {
-		Animal aux = null;
+	public Animal deliver_baby() {
+		
+		Animal aux = _baby;
+		_baby = null;
 		return aux;
 	}
 	
@@ -203,14 +193,10 @@ public abstract class Animal implements Entity, Animalnfo {
 
 	}
 	
-	protected boolean isOutOfBounders() {
-		return this._pos.getX() > this._region_mngr.get_width() || this._pos.getY() > this._region_mngr.get_height() 
-				|| this._pos.getX() < 0.0 || this._pos.getY() < 0.0;
-	}
 	
 	public JSONObject as_JSON() {
 		JSONObject value = new JSONObject()
-				 .put("pos", _pos)
+				 .put("pos", _pos.asJSONArray())
 				 .put("gcode", _genetic_code)
 			     .put("diet", _diet)
 			     .put("state", _state);

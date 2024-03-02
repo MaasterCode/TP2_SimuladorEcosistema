@@ -2,7 +2,7 @@ package simulator.model;
 
 import simulator.misc.Vector2D;
 import simulator.model.Alimentation.Diet;
-import simulator.model.AnimalState.State;
+
 
 public interface Animalnfo extends JSONable{
 

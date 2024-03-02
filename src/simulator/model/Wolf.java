@@ -3,7 +3,6 @@ package simulator.model;
 import simulator.misc.Utils;
 import simulator.misc.Vector2D;
 import simulator.model.Alimentation.Diet;
-import simulator.model.AnimalState.State;
 
 public class Wolf extends Animal{
 
@@ -30,7 +29,7 @@ public class Wolf extends Animal{
 		
 		/*2.*/	this.changeState(dt);	
 		
-		/*3.*/ if (this._pos.outOfBound(this._region_mngr.get_width(), this._region_mngr.get_height())) 
+		/*3.*/ if (this._pos.outOfUpperLimits(this._region_mngr.get_width(), this._region_mngr.get_height())) 
 					this._pos.adjust(this._region_mngr.get_width(), this._region_mngr.get_height());
 		
 		/*4.*/ if (this._energy == 0.0 || this._age > 14.0)
