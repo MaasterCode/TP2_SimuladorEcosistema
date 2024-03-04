@@ -10,11 +10,15 @@ public class Simulator {
 	private RegionManager reg_manager;
 	private List<Animal> animal_list;
 	private double current_time;
+	private Factory<Animal> animals_factory;
+	private Factory<Region> regions_factory;
 	// Falta añadir las factorias
 	
 	public Simulator(int cols, int rows, int width, int height, Factory<Animal> animals_factory, Factory<Region> regions_factory) {
 		this.reg_manager = new RegionManager(cols, rows, width, height);
 		this.current_time = 0.0;
+		this.animals_factory = animals_factory;
+		this.regions_factory = regions_factory;
 	}
 	
 	// CAMBIAR A PRIVATE UNA VEZ AÑADIDAS LAS FACTORIAS
@@ -27,7 +31,7 @@ public class Simulator {
 	}
 	
 	public void add_animal(Animal a) {
-		
+		this.reg_manager.register_animal(a);
 	}
 	
 	public void add_animal(JSONObject a_json) {

@@ -20,9 +20,17 @@ import simulator.factories.Factory;
 import simulator.factories.SelectClosestBuilder;
 import simulator.factories.SelectFirstBuilder;
 import simulator.factories.SelectYoungestBuilder;
+import simulator.factories.SheepBuilder;
+import simulator.factories.WolfBuilder;
+import simulator.factories.DefaultRegionBuilder;
+import simulator.factories.DynamicSupplyRegionBuilder;
+
+
 
 import java.util.List;
+import java.util.Map;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import simulator.misc.Vector2D;
 
@@ -31,6 +39,7 @@ import simulator.model.Animal;
 import simulator.model.Animalnfo;
 import simulator.model.SelectClosest;
 import simulator.model.Sheep;
+import simulator.model.Simulator;
 import simulator.view.SimpleObjectViewer;
 import simulator.view.SimpleObjectViewer.ObjInfo;
 
@@ -100,6 +109,9 @@ public class Main {
 	private static Double _time = null;
 	private static String _in_file = null;
 	private static ExecMode _mode = ExecMode.BATCH;
+	
+	private static Simulator sim;
+	private static Map<String, Factory> factorias = new HashMap<String, Factory>();
 
 	private static void parse_args(String[] args) {
 
@@ -185,9 +197,20 @@ public class Main {
 		Factory<SelectionStrategy> selection_strategy_factory = new BuilderBasedFactory<SelectionStrategy>(selection_strategy_builders);
 		
 		List<Builder<Animal>> animal_builders = new ArrayList<>();
-		
-		
+		animal_builders.add(new SheepBuilder(selection_strategy_factory));
+		animal_builders.add(new WolfBuilder(selection_strategy_factory));
+		Factory<Animal> animals_factory = new BuilderBasedFactory<Animal>(animal_builders);
+
 		List<Builder<Region>> region_builders = new ArrayList<>();
+		region_builders.add(new DefaultRegionBuilder());
+		region_builders.add(new DynamicSupplyRegionBuilder());
+		Factory<Region> regions_factory = new BuilderBasedFactory<Region>(region_builders);
+		
+		factorias.put("strategy", selection_strategy_factory);
+		factorias.put("animal", animals_factory);
+		factorias.put("regions", regions_factory);
+		
+		
 		
 	}
 
@@ -199,7 +222,8 @@ public class Main {
 	private static void start_batch_mode() throws Exception {
 		InputStream is = new FileInputStream(new File(_in_file));
 		
-		
+		// Sacar los datos del mapa del json y meterlo en el simulator
+		sim = new Simulator(3,3,800,600,factorias.get("animals"),factorias.get("regions"));
 		
 	}
 

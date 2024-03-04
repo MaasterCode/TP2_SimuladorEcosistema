@@ -5,11 +5,12 @@ import org.json.JSONObject;
 
 import simulator.misc.Utils;
 import simulator.misc.Vector2D;
+import simulator.model.Animal;
 import simulator.model.SelectFirst;
 import simulator.model.SelectionStrategy;
 import simulator.model.Sheep;
 
-public class SheepBuilder extends Builder<Sheep>{
+public class SheepBuilder extends Builder<Animal>{
 
 	Factory<SelectionStrategy> strategy_factory;
 	public SheepBuilder(Factory<SelectionStrategy> select_strategy_factory) {
