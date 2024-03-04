@@ -29,9 +29,20 @@ public class RegionManager implements AnimalMapView{
 		_height = height;
 		_region_width = _width/cols;
 		_region_height = _height/rows;
-		_regions = new DefaultRegion[_rows][_cols];
-		//Inicializar _animal_region con una estructura de datos adecuada, ver si es así:
+		initialize_regions();
 		_animal_region = new HashMap<Animal,Region>();
+	}
+	
+	private void initialize_regions() {
+		
+		for (int i = 0; i < _rows; i++) {
+			for (int j = 0; j < _cols; j++) {
+				
+				_regions[i][j] = new DefaultRegion();
+				
+			}
+		}
+		
 	}
 	
 	
@@ -104,7 +115,7 @@ public class RegionManager implements AnimalMapView{
 	public void set_region(int row, int col, Region r) {
 		
 		// Si las fila y columna que nos pasan son posiciones válidas de la matriz de regiones
-		if ((row >= 0 && row <= this._rows) && (col >= 0 && col <= this._cols)) {
+	/*	if ((row >= 0 && row <= this._rows) && (col >= 0 && col <= this._cols)) {
 			// Guardamos la región que queremos cambiar en una variable auxiliar
 			Region aux = this._regions[row][col];
 			// Igualamos la región a cambiar a la nueva región
@@ -120,17 +131,25 @@ public class RegionManager implements AnimalMapView{
 			// Borramos, por si acaso, la region vieja.
 			aux._animal_list.clear();
 			
+		}*/
+		
+		
+		for (Animal a : this._regions[row][col].getAnimals()) {
+			
+			r.add_animal(a);
+			this._animal_region.put(a, r);
+			
 		}
 		
+		this._regions[row][col] = r;
 		
 	}
 	
 	public void register_animal(Animal a) {
 	
-	
 		// Calculamos la fila y columna en la que está el animal
-		int row = (int) a.get_position().getX()/this._region_height;
-		int col = (int) a.get_position().getY()/this._region_width;
+		int row = (int) a.get_position().getX()/this._region_width;
+		int col = (int) a.get_position().getY()/this._region_height;
 		
 		_regions[row][col].add_animal(a);
 		
@@ -144,7 +163,6 @@ public class RegionManager implements AnimalMapView{
 		
 		this._animal_region.remove(a);
 		
-	
 		
 	}
 	

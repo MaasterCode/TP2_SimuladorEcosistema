@@ -5,7 +5,7 @@ import org.json.JSONObject;
 import simulator.misc.Utils;
 import simulator.misc.Vector2D;
 import simulator.model.Alimentation.Diet;
-import simulator.model.AnimalState.State;
+import simulator.model.State;
 
 public abstract class Animal implements Entity, Animalnfo {
 

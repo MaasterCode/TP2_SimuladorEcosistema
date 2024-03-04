@@ -26,14 +26,14 @@ public class DynamicSupplyRegion extends Region {
 	@Override
 	public double get_food(Animal a, double dt) {
 		
-		double food;
+		double food = 0.0;
 		
-		if (a.get_diet() == Diet.CARNIVORE)
-			food = 0.0;
-		else {
-			food =  Math.min(_food,60.0*Math.exp(-Math.max(0,nHerbivores()-5.0)*2.0)*dt);
-			_food -= food;
-		}
+		int n = (int) _animal_list.stream().filter(animal -> animal.get_diet() == Diet.HERBIVORE).count();
+		
+		if (a.get_diet() == Diet.HERBIVORE) 
+			food =  Math.min(_food,60.0*Math.exp(-Math.max(0,n-5.0)*2.0)*dt);
+			
+		_food -= food;
 		
 		return food;
 	}
