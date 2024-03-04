@@ -3,6 +3,7 @@ package simulator.factories;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import simulator.misc.Utils;
 import simulator.misc.Vector2D;
 import simulator.model.SelectFirst;
 import simulator.model.SelectionStrategy;
@@ -31,11 +32,14 @@ public class WolfBuilder extends Builder<Wolf>{
 		
 		if( data.has("pos")) {
 			JSONObject pos_json = data.getJSONObject("data").getJSONObject("pos");
-
-	        // Extraer los valores de x_range y y_range
+			
+			  // Extraer los valores de x_range y y_range
 	        JSONArray xRange = pos_json.getJSONArray("x_range");
 	        JSONArray yRange = pos_json.getJSONArray("y_range");
-	        pos = Vector2D.get_random_vector(xRange.getDouble(0), xRange.getDouble(1));
+
+			double x = Utils._rand.nextDouble(xRange.getDouble(0), xRange.getDouble(1));
+	        double y = Utils._rand.nextDouble(yRange.getDouble(0), yRange.getDouble(1));
+	        pos = new  Vector2D(x,y);
 	        
 		}
 		return new Wolf(mate_strategy, danger_strategy, pos);
