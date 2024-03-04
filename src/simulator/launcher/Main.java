@@ -3,6 +3,8 @@ package simulator.launcher;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.FileOutputStream;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -24,60 +26,17 @@ import simulator.factories.SheepBuilder;
 import simulator.factories.WolfBuilder;
 import simulator.factories.DefaultRegionBuilder;
 import simulator.factories.DynamicSupplyRegionBuilder;
-
+import simulator.control.Controller;
 
 
 import java.util.List;
-import java.util.Map;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import simulator.misc.Vector2D;
-
 import simulator.misc.Utils;
 import simulator.model.Animal;
-import simulator.model.Animalnfo;
-import simulator.model.SelectClosest;
-import simulator.model.Sheep;
 import simulator.model.Simulator;
-import simulator.view.SimpleObjectViewer;
-import simulator.view.SimpleObjectViewer.ObjInfo;
+
 
 public class Main {
-
-	
-/*	
-	public static void main(String[] args) {
-        List<Animal> l = new LinkedList<>();
-        for (int i = 0; i < 200; i++) {
-            double x = Utils._rand.nextDouble(800);
-            double y = Utils._rand.nextDouble(600);
-            Vector2D v = new Vector2D(x, y);
-            l.add(new Sheep(new SelectClosest(), new SelectClosest(), new Vector2D(v)));
-        }
-        SimpleObjectViewer view = new SimpleObjectViewer ("[ECOSYSTEM]", 800, 600, 15, 20);
-        double dt = 0.003;
-        double time = 0.0;
-        while (time < 100) {
-            time += dt;
-            for (Animal a : l) {
-                a.update(dt);
-                view.update(to_animals_info(l));
-            }
-        }
-    }
-
-    private static List<ObjInfo> to_animals_info(List<? extends Animalnfo> animals) {
-        List<ObjInfo> ol = new ArrayList<>(animals.size());
-        for (Animalnfo a : animals)
-            ol.add(new ObjInfo(a.get_genetic_code(), 
-                    (int) a.get_position().getX(), 
-                        (int) a.get_position().getY(), (int)Math.round(a.get_age())+2));
-        return ol;
-    }
-
-	
-	*/
 	
 
 	private enum ExecMode {
@@ -108,11 +67,17 @@ public class Main {
 	//
 	private static Double _time = null;
 	private static String _in_file = null;
+	private static String _out_file = null;
+	private static boolean sv = false;
 	private static ExecMode _mode = ExecMode.BATCH;
 	
-	private static Simulator sim;
+	private static Factory<SelectionStrategy> selection_strategy_factory;
+	private static Factory<Animal> animals_factory;
+	private static Factory<Region> regions_factory;
+	
+/*	private static Simulator sim;
 	private static Map<String, Factory> factorias = new HashMap<String, Factory>();
-
+*/
 	private static void parse_args(String[] args) {
 
 		// define the valid command line options
@@ -126,8 +91,11 @@ public class Main {
 			CommandLine line = parser.parse(cmdLineOptions, args);
 			parse_help_option(line, cmdLineOptions);
 			parse_in_file_option(line);
+			parse_out_file_option(line);
 			parse_time_option(line);
-
+			parse_delta_time_option(line);
+			parse_simple_viewer_option(line);
+			
 			// if there are some remaining arguments, then something wrong is
 			// provided in the command line!
 			//
@@ -178,6 +146,14 @@ public class Main {
 			throw new ParseException("In batch mode an input configuration file is required");
 		}
 	}
+	
+	private static void parse_out_file_option(CommandLine line) throws ParseException {
+		_out_file = line.getOptionValue("o");
+		if (_mode == ExecMode.BATCH && _out_file == null)
+			throw new ParseException("In batch mode an output configuration file is required");
+		
+		
+	}
 
 	private static void parse_time_option(CommandLine line) throws ParseException {
 		String t = line.getOptionValue("t", _default_time.toString());
@@ -187,30 +163,40 @@ public class Main {
 		} catch (Exception e) {
 			throw new ParseException("Invalid value for time: " + t);
 		}
-	}
+	} 
 
+	private static void parse_delta_time_option(CommandLine line) throws ParseException{
+		String t = line.getOptionValue("dt", _time.toString());
+		try {
+			_time = Double.parseDouble(t);
+			assert (_time >= 0 && _time < _default_time);
+		} catch (Exception e) {
+			throw new ParseException("Invalid value for time: " + t);
+		}
+	}
+	
+	private static void parse_simple_viewer_option(CommandLine line) {
+		if (line.hasOption("sv"))
+			sv = true;
+	}
+	
 	private static void init_factories() {
 		
 		List<Builder<SelectionStrategy>> selection_strategy_builders = new ArrayList<>();
 		selection_strategy_builders.add(new SelectFirstBuilder());
 		selection_strategy_builders.add(new SelectClosestBuilder());
-		Factory<SelectionStrategy> selection_strategy_factory = new BuilderBasedFactory<SelectionStrategy>(selection_strategy_builders);
+		selection_strategy_builders.add(new SelectYoungestBuilder());
+		selection_strategy_factory = new BuilderBasedFactory<SelectionStrategy>(selection_strategy_builders);
 		
 		List<Builder<Animal>> animal_builders = new ArrayList<>();
 		animal_builders.add(new SheepBuilder(selection_strategy_factory));
 		animal_builders.add(new WolfBuilder(selection_strategy_factory));
-		Factory<Animal> animals_factory = new BuilderBasedFactory<Animal>(animal_builders);
+		animals_factory = new BuilderBasedFactory<Animal>(animal_builders);
 
 		List<Builder<Region>> region_builders = new ArrayList<>();
 		region_builders.add(new DefaultRegionBuilder());
 		region_builders.add(new DynamicSupplyRegionBuilder());
-		Factory<Region> regions_factory = new BuilderBasedFactory<Region>(region_builders);
-		
-		factorias.put("strategy", selection_strategy_factory);
-		factorias.put("animal", animals_factory);
-		factorias.put("regions", regions_factory);
-		
-		
+		regions_factory = new BuilderBasedFactory<Region>(region_builders);
 		
 	}
 
@@ -222,8 +208,18 @@ public class Main {
 	private static void start_batch_mode() throws Exception {
 		InputStream is = new FileInputStream(new File(_in_file));
 		
-		// Sacar los datos del mapa del json y meterlo en el simulator
-		sim = new Simulator(3,3,800,600,factorias.get("animals"),factorias.get("regions"));
+		JSONObject jis = load_JSON_file(is);
+		
+		OutputStream os = new FileOutputStream(new File(_out_file));
+		
+		Simulator sim = new Simulator(jis.getInt("cols"),jis.getInt("rows"),
+				jis.getInt("width"),jis.getInt("height"), animals_factory, regions_factory);
+		
+		Controller cont = new Controller(sim);
+		
+		cont.load_data(jis);
+		
+		cont.run(_default_time, _time, sv, os);
 		
 	}
 
