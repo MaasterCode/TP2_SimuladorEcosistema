@@ -12,6 +12,14 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+import simulator.factories.Builder;
+import simulator.factories.BuilderBasedFactory;
+import simulator.model.SelectionStrategy;
+import simulator.model.Region;
+import simulator.factories.Factory;
+import simulator.factories.SelectClosestBuilder;
+import simulator.factories.SelectFirstBuilder;
+import simulator.factories.SelectYoungestBuilder;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -29,7 +37,7 @@ import simulator.view.SimpleObjectViewer.ObjInfo;
 public class Main {
 
 	
-	
+/*	
 	public static void main(String[] args) {
         List<Animal> l = new LinkedList<>();
         for (int i = 0; i < 200; i++) {
@@ -60,9 +68,9 @@ public class Main {
     }
 
 	
+	*/
 	
-	
-/*	
+
 	private enum ExecMode {
 		BATCH("batch", "Batch mode"), GUI("gui", "Graphical User Interface mode");
 
@@ -170,6 +178,17 @@ public class Main {
 	}
 
 	private static void init_factories() {
+		
+		List<Builder<SelectionStrategy>> selection_strategy_builders = new ArrayList<>();
+		selection_strategy_builders.add(new SelectFirstBuilder());
+		selection_strategy_builders.add(new SelectClosestBuilder());
+		Factory<SelectionStrategy> selection_strategy_factory = new BuilderBasedFactory<SelectionStrategy>(selection_strategy_builders);
+		
+		List<Builder<Animal>> animal_builders = new ArrayList<>();
+		
+		
+		List<Builder<Region>> region_builders = new ArrayList<>();
+		
 	}
 
 	private static JSONObject load_JSON_file(InputStream in) {
@@ -179,6 +198,9 @@ public class Main {
 
 	private static void start_batch_mode() throws Exception {
 		InputStream is = new FileInputStream(new File(_in_file));
+		
+		
+		
 	}
 
 	private static void start_GUI_mode() throws Exception {
@@ -208,5 +230,5 @@ public class Main {
 			e.printStackTrace();
 		}
 	}
-	*/
+	
 }

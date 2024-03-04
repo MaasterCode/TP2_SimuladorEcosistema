@@ -14,16 +14,13 @@ public class DefaultRegion extends Region {
 		
 		double f = 0.0;
 		
-		int n = (int) _animal_list.stream().filter(animal -> animal.get_diet() == Diet.HERBIVORE).count();
+		//int n = (int) _animal_list.stream().filter(animal -> animal.get_diet() == Diet.HERBIVORE).count();
 		
 		 if (a.get_diet() == Diet.HERBIVORE) {
-			f = 60.0*Math.exp(-Math.max(0,n-5.0)*2.0)*dt;
+			f = 60.0*Math.exp(-Math.max(0,nHerbivores-5.0)*2.0)*dt;
 		}
 		return f;
 	}
-	// HerbivoreCount devuelve el numero de animales herbivoros en la lista, ya que 
-	// la función necesita el numero n de animales herbivoros:
-	// 60.0*Math.exp(-Math.max(0,n-5.0)*2.0)*dt
 	
 	
 	

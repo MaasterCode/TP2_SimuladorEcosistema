@@ -114,35 +114,16 @@ public class RegionManager implements AnimalMapView{
 	
 	public void set_region(int row, int col, Region r) {
 		
-		// Si las fila y columna que nos pasan son posiciones válidas de la matriz de regiones
-	/*	if ((row >= 0 && row <= this._rows) && (col >= 0 && col <= this._cols)) {
-			// Guardamos la región que queremos cambiar en una variable auxiliar
-			Region aux = this._regions[row][col];
-			// Igualamos la región a cambiar a la nueva región
-			this._regions[row][col] = r;
-			
-			for (Animal a : aux.getAnimals()) {
-				// Metemos todos los animales de la región vieja a la nueva en el mapa _animal_region y los añadimos a la región nueva.
-				_animal_region.put(a, this._regions[row][col]);
+		if ((row >= 0 && row <= this._rows) && (col >= 0 && col <= this._cols)) {
+			for (Animal a : this._regions[row][col].getAnimals()) {
 				
-				this._regions[row][col].add_animal(a);
+				r.add_animal(a);
+				this._animal_region.put(a, r);
 				
 			}
-			// Borramos, por si acaso, la region vieja.
-			aux._animal_list.clear();
-			
-		}*/
 		
-		
-		for (Animal a : this._regions[row][col].getAnimals()) {
-			
-			r.add_animal(a);
-			this._animal_region.put(a, r);
-			
+			this._regions[row][col] = r;
 		}
-		
-		this._regions[row][col] = r;
-		
 	}
 	
 	public void register_animal(Animal a) {
