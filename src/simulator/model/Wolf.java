@@ -20,7 +20,6 @@ public class Wolf extends Animal {
 		this._hunt_target = null;
 	}
 
-	
 	public SelectionStrategy get_hunting_strategy() {
 		return this._hunting_strategy;
 	}
@@ -31,16 +30,17 @@ public class Wolf extends Animal {
 		this.changeState(dt);
 
 		if (this._pos.outOfMap(this._region_mngr.get_width(), this._region_mngr.get_height())) {
+			
 			this._pos.adjust(this._region_mngr.get_width(), this._region_mngr.get_height());
-			this._state = State.NORMAL;
-			this._hunt_target = null;
-			this._mate_target = null;
+			
+			changeToNormalState();
 		}
 
 		if (this._energy == 0.0 || this._age > 14.0)
 			this._state = State.DEAD;
 
 		if (this._state != State.DEAD) {
+			
 			double newEnergy = this._energy + this._region_mngr.get_food(this, dt);
 
 			this._energy = Utils.constrain_value_in_range(newEnergy, 0, 100);
@@ -49,7 +49,7 @@ public class Wolf extends Animal {
 
 	}
 
-	private void normalState(double dt) {
+	private void normalLogic(double dt) {
 
 		if (this._pos.distanceTo(this._dest) < 8.0) {
 
@@ -71,6 +71,24 @@ public class Wolf extends Animal {
 
 	}
 
+	private void normalChangeLogic(){
+		
+		if (this._energy < 50.0) 
+			changeToHungerState();
+		
+		else if (this._desire > 65.0) 
+			changeToMateState();
+		
+	}
+	
+	private void changeToNormalState() {
+		
+		this._state = State.NORMAL;
+		this._mate_target = null;
+		this._hunt_target = null;
+		
+	}
+	
 	private void hungerState(double dt) {
 
 		if ((this._hunt_target == null) || (this._hunt_target.get_state() == State.DEAD)
@@ -79,7 +97,7 @@ public class Wolf extends Animal {
 					this._region_mngr.get_animals_in_range(this, animal -> animal.get_diet() == Diet.HERBIVORE));
 
 		if (this._hunt_target == null)
-			this.normalState(dt);
+			this.normalLogic(dt);
 
 		else {
 
@@ -110,6 +128,25 @@ public class Wolf extends Animal {
 		}
 	}
 
+	private void hungerChangeLogic() {
+		
+		if (this._energy > 50.0) {
+			if (this._desire < 65.0) 
+				changeToNormalState();
+			else
+				changeToMateState();
+			
+		}
+		
+	}
+	
+	private void changeToHungerState() {
+		
+		this._state = State.HUNGER;
+		this._mate_target = null;
+		
+	}
+	
 	private void mateState(double dt) {
 
 		if (this._mate_target != null && (this._mate_target.get_state() == State.DEAD
@@ -121,7 +158,7 @@ public class Wolf extends Animal {
 					this._region_mngr.get_animals_in_range(this, animal -> animal.get_genetic_code() == "Wolf"));
 			
 			if (this._mate_target == null)
-				this.normalState(dt);
+				this.normalLogic(dt);
 		}
 
 		if (this._mate_target != null) {
@@ -153,6 +190,25 @@ public class Wolf extends Animal {
 
 	}
 
+	private void mateChangeLogic() {
+		
+		if (this._energy < 50.0) 
+			changeToHungerState();
+		
+		else {
+			if (this._desire < 65.0) 
+				changeToNormalState();
+		}
+		
+	}
+	
+	private void changeToMateState() {
+		
+		this._state = State.MATE;
+		this._hunt_target = null;
+		
+	}
+	
 	private void changeState(double dt) {
 
 		switch (this._state) {
@@ -162,49 +218,26 @@ public class Wolf extends Animal {
 
 		case NORMAL:
 
-			this.normalState(dt);
+			normalLogic(dt);
 
-			if (this._energy < 50.0) {
-				this._state = State.HUNGER;
-				this._mate_target = null;
-			} else if (this._desire > 65.0) {
-				this._state = State.MATE;
-				this._hunt_target = null;
-			}
+			normalChangeLogic();
+			
 			break;
 
 		case HUNGER:
 
-			this.hungerState(dt);
+			hungerState(dt);
 
-			if (this._energy > 50.0) {
-				if (this._desire < 65.0) {
-					this._state = State.NORMAL;
-					this._mate_target = null;
-					this._hunt_target = null;
-				}
-				else {
-					this._state = State.MATE;
-					this._hunt_target = null;
-				}
-			}
+			hungerChangeLogic();
+			
 			break;
 
 		case MATE:
 
-			this.mateState(dt);
+			mateState(dt);
 
-			if (this._energy < 50.0) {
-				this._state = State.HUNGER;
-				this._mate_target = null;
-			}
-			else {
-				if (this._desire < 65.0) {
-					this._state = State.NORMAL;
-					this._mate_target = null;
-					this._hunt_target = null;
-				}
-			}
+			mateChangeLogic();
+			
 			break;
 
 		case DANGER:

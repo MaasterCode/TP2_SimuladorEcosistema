@@ -3,17 +3,6 @@ package simulator.model;
 import simulator.misc.Utils;
 import simulator.misc.Vector2D;
 
-/* *
- * 
- NOTA:
- 
- Predicate es una lambda funcion, utilizamos el tipo que queremos, luego "->"
- y por ultimo la linea que tiene que cumplir, como si fuese el return de una función,
- es decir, es una función en una linea en la que ponemos el tipo que queremos 
- y luego su valor de return.
- * 
- * */
-
 public class Sheep extends Animal {
 
 	private Animal _danger_source;
@@ -45,9 +34,7 @@ public class Sheep extends Animal {
 		if (this._pos.outOfMap(this._region_mngr.get_width(), this._region_mngr.get_height())) {
 
 			this._pos.adjust(this._region_mngr.get_width(), this._region_mngr.get_height());
-			this._state = State.NORMAL;
-			this._danger_source = null;
-			this._mate_target = null;
+			changeToNormalState();
 		}
 
 		if (this._energy == 0.0 || this._age > 8.0)
@@ -61,7 +48,7 @@ public class Sheep extends Animal {
 		}
 	}
 
-	private void normal_logic(double dt) {
+	private void normalLogic(double dt) {
 
 		if (this._pos.distanceTo(this._dest) < 8.0) {
 
@@ -83,13 +70,35 @@ public class Sheep extends Animal {
 
 	}
 
-	private void danger_logic(double dt) {
+	private void normalChangeLogic(){
+		
+		if (this._danger_source == null) 
+			this._danger_source = this._danger_strategy.select(this,
+					this._region_mngr.get_animals_in_range(this, animal -> animal.get_diet() == Diet.CARNIVORE));
+		
+		if (this._danger_source != null) 
+			changeToDangerState();
+			
+		else if (this._desire > 65.0) 
+			changeToMateState();
+		
+	}
+	
+	private void changeToNormalState() {
+		
+		this._state = State.NORMAL;
+		this._danger_source = null;
+		this._mate_target = null;
+		
+	}
+	
+	private void dangerLogic(double dt) {
 
 		if (this._danger_source != null && this._danger_source.get_state() == State.DEAD)
 			this._danger_source = null;
 
 		if (this._danger_source == null)
-			this.normal_logic(dt);
+			this.normalLogic(dt);
 
 		else {
 			this._dest = this._pos.plus(_pos.minus(_danger_source.get_position()).direction());
@@ -106,6 +115,12 @@ public class Sheep extends Animal {
 
 		}
 
+		
+
+	}
+
+	private void dangerChangeLogic() {
+		
 		if (this._danger_source == null
 				|| this._danger_source.get_position().distanceTo(this.get_position()) > this._sight_range) {
 			this._danger_source = this._danger_strategy.select(this,
@@ -114,23 +129,26 @@ public class Sheep extends Animal {
 			if (this._danger_source == null) {
 
 				if (this._desire < 65.0) {
-					this._state = State.NORMAL;
-					this._danger_source = null;
-					this._mate_target = null;
+					changeToNormalState();
 				}
 
 				else {
-					this._state = State.MATE;
-					this._danger_source = null;
+					changeToMateState();
 				}
 
 			}
 
 		}
-
 	}
-
-	private void mate_logic(double dt) {
+	
+	private void changeToDangerState() {
+		
+		this._state = State.DANGER;
+		this._mate_target = null;
+		
+	}
+	
+	private void mateLogic(double dt) {
 
 		if (this._mate_target != null) {
 
@@ -143,11 +161,11 @@ public class Sheep extends Animal {
 					this._region_mngr.get_animals_in_range(this, animal -> animal.get_genetic_code() == "Sheep"));
 			if (this._mate_target == null) {
 
-				this.normal_logic(dt);
+				this.normalLogic(dt);
 			}
 		}
-		
-		if (_mate_target != null){
+
+		if (_mate_target != null) {
 
 			this._dest = this._mate_target.get_position();
 			this.move(2.0 * this._speed * dt * Math.exp((this._energy - 100.0) * 0.007));
@@ -162,15 +180,20 @@ public class Sheep extends Animal {
 				this._desire = 0.0;
 				this._mate_target.set_desire(0.0);
 				if (this._baby == null) {
-					if (Utils._rand.nextDouble() < 0.9) 
+					if (Utils._rand.nextDouble() < 0.9)
 						this._baby = new Sheep(this, this._mate_target);
-						
-					
+
 				}
 				this._mate_target = null;
 
 			}
 		}
+
+		
+
+	}
+	
+	private void mateChangeLogic() {
 
 		if (this._danger_source == null) {
 
@@ -178,13 +201,19 @@ public class Sheep extends Animal {
 					this._region_mngr.get_animals_in_range(this, animal -> animal.get_diet() == Diet.CARNIVORE));
 		}
 
-		if (this._danger_source != null) {
-			this._state = State.DANGER;
-			this._mate_target = null;
-		}
-
+		if (this._danger_source != null) 
+			changeToDangerState();
+		
+	
 		else if (this._desire < 65.0)
-			this._state = State.NORMAL;
+			changeToNormalState();
+		
+	}
+	
+	private void changeToMateState() {
+		
+		this._state = State.MATE;
+		this._danger_source = null;
 		
 	}
 
@@ -197,25 +226,28 @@ public class Sheep extends Animal {
 			break;
 		case NORMAL:
 
-			this.normal_logic(dt);
-			if (this._danger_source == null) {
-				this._danger_source = this._danger_strategy.select(this,
-						this._region_mngr.get_animals_in_range(this, animal -> animal.get_diet() == Diet.CARNIVORE));
-			}
-			if (this._danger_source != null) {
-				this._state = State.DANGER;
-				this._mate_target = null;
-			} else if (this._desire > 65.0) {
-				this._state = State.MATE;
-				this._danger_source = null;
-			}
+			normalLogic(dt);
+			
+			normalChangeLogic();
+			
 			break;
+			
 		case DANGER:
-			this.danger_logic(dt);
+			
+			dangerLogic(dt);
+			
+			dangerChangeLogic();
+			
 			break;
+			
 		case MATE:
-			this.mate_logic(dt);
+			
+			mateLogic(dt);
+			
+			mateChangeLogic();
+			
 			break;
+			
 		default:
 			break;
 
@@ -223,4 +255,7 @@ public class Sheep extends Animal {
 
 	}
 
+	
+	
+	
 }

@@ -27,11 +27,9 @@ public class DynamicSupplyRegion extends Region {
 		
 		double food = 0.0;
 		
-	//	int n = (int) _animal_list.stream().filter(animal -> animal.get_diet() == Diet.HERBIVORE).count();
-		
 		if (a.get_diet() == Diet.HERBIVORE) 
 			food =  Math.min(_food,60.0*Math.exp(-Math.max(0,nHerbivores-5.0)*2.0)*dt);
-			
+		
 		_food -= food;
 		
 		return food;

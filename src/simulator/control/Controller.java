@@ -62,8 +62,8 @@ public class Controller {
 		for (int i = 0; i < regions.length();i++) {
 			JSONObject ob = regions.getJSONObject(i);
 			
-			JSONObject row = ob.getJSONObject("row");
-			JSONObject col = ob.getJSONObject("col");
+			JSONArray row = ob.getJSONArray("row");
+			JSONArray col = ob.getJSONArray("col");
 			JSONObject spec = ob.getJSONObject("spec");
 			
 			for (int j = 0; j < row.length(); j++) {

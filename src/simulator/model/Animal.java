@@ -163,7 +163,7 @@ public abstract class Animal implements Entity, AnimalInfo {
 	}
 	
 	
-	
+	//Inicializador de posición y destino del animal
 	void init(AnimalMapView reg_mngr){
 		
 		_region_mngr = reg_mngr;

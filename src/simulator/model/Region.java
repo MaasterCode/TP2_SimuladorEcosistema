@@ -11,8 +11,6 @@ public abstract class Region implements Entity, FoodSupplier, RegionInfo{
 
 	protected List<Animal> _animal_list;
 	protected int nHerbivores;
-	// En vez de hacer nHerbivores podemos hacer dos atributos nHerb y nCarn para tener directamente la
-	// n de herbivoros o carnivoros.
 	public Region() {
 		_animal_list = new ArrayList<Animal>();
 		nHerbivores = 0;

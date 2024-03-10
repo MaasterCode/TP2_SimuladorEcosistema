@@ -8,7 +8,7 @@ import simulator.model.Region;
 public class DynamicSupplyRegionBuilder extends Builder<Region> {
 
 	public DynamicSupplyRegionBuilder() {
-		super("DynamicSupplyRegion", "{ rellenar!!! }");
+		super("dynamic", "{ rellenar!!! }");
 		
 	}
 

@@ -149,11 +149,6 @@ public class RegionManager implements AnimalMapView{
 	public void update_animal_region(Animal a) {
 		int row = (int) a.get_position().getY()/this._region_height;
 		int col = (int) a.get_position().getX()/this._region_width;
-		
-	/*	if (row == -6) {
-			System.out.println("kkk");
-		}
-	*/		
 			
 		Region oldR = _animal_region.get(a);
 		Region check = _regions[row][col];
