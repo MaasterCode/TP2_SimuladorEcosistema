@@ -4,10 +4,8 @@ import org.json.JSONObject;
 
 import simulator.misc.Utils;
 import simulator.misc.Vector2D;
-import simulator.model.Alimentation.Diet;
-import simulator.model.State;
 
-public abstract class Animal implements Entity, Animalnfo {
+public abstract class Animal implements Entity, AnimalInfo {
 
 	protected String _genetic_code;
 	protected Diet _diet;
@@ -42,6 +40,7 @@ public abstract class Animal implements Entity, Animalnfo {
 		if (mate_strategy == null)
 			throw new IllegalArgumentException("mate strategy cannot be null.");
 		
+		_pos = pos;
 		_genetic_code = genetic_code;
 		_sight_range = sight_range;
 		_speed = Utils.get_randomized_parameter(init_speed, 0.1);
@@ -65,14 +64,16 @@ public abstract class Animal implements Entity, Animalnfo {
 		_region_mngr = null;
 		_state = State.NORMAL;
 		_desire = 0.0;
-		_genetic_code = p1._genetic_code;
-		_diet = p1._diet;
-		_energy = (p1._energy + p2._energy)/2;
+		_genetic_code = p1.get_genetic_code();
+		_diet = p1.get_diet();
+		_energy = (p1.get_energy() + p2.get_energy())/2;
 		_pos = p1.get_position().plus(Vector2D.get_random_vector(-1,1).scale(60.0*(Utils._rand
 				.nextGaussian()+1)));
 		_sight_range = Utils.get_randomized_parameter
 				((p1.get_sight_range()+p2.get_sight_range())/2, 0.2);
 		_speed = Utils.get_randomized_parameter((p1.get_speed()+p2.get_speed())/2, 0.2);
+		
+		_mate_strategy = p2.get_mate_strategy();
 		
 	}
 	
@@ -108,6 +109,10 @@ public abstract class Animal implements Entity, Animalnfo {
 	public AnimalMapView get_region_manager() {
 		return _region_mngr;
 	}
+	public SelectionStrategy get_mate_strategy() {
+		return _mate_strategy;
+	}
+	
 	public boolean is_pregnant() {
 		return (_baby != null);
 	}
@@ -170,9 +175,9 @@ public abstract class Animal implements Entity, Animalnfo {
 			 y = Utils._rand.nextDouble(0, _region_mngr.get_height()-1);
 			_pos = new Vector2D(x,y);
 		}
-		else
-			 this._pos.adjust(_region_mngr.get_width(), _region_mngr.get_height());
-
+		else {
+			this._pos.adjust(_region_mngr.get_width(), _region_mngr.get_height());
+		}
 		
 		 x = Utils._rand.nextDouble(0, _region_mngr.get_width()-1);
 		 y = Utils._rand.nextDouble(0, _region_mngr.get_height()-1);

@@ -14,7 +14,7 @@ public class SheepBuilder extends Builder<Animal>{
 
 	Factory<SelectionStrategy> strategy_factory;
 	public SheepBuilder(Factory<SelectionStrategy> select_strategy_factory) {
-		super("Sheep", "");
+		super("sheep", "{}");
 		this.strategy_factory = select_strategy_factory;
 	}
 
@@ -31,7 +31,7 @@ public class SheepBuilder extends Builder<Animal>{
 		}
 		
 		if( data.has("pos")) {
-			JSONObject pos_json = data.getJSONObject("data").getJSONObject("pos");
+			JSONObject pos_json = data.getJSONObject("pos");
 
 	        // Extraer los valores de x_range y y_range
 	        JSONArray xRange = pos_json.getJSONArray("x_range");

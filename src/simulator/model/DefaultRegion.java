@@ -1,6 +1,5 @@
 package simulator.model;
 
-import simulator.model.Alimentation.Diet;
 
 public class DefaultRegion extends Region {
 

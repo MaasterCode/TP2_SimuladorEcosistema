@@ -29,19 +29,17 @@ public class RegionManager implements AnimalMapView{
 		_height = height;
 		_region_width = _width/cols;
 		_region_height = _height/rows;
+		_regions = new Region[_rows][_cols];
 		initialize_regions();
 		_animal_region = new HashMap<Animal,Region>();
 	}
 	
 	private void initialize_regions() {
 		
-		for (int i = 0; i < _rows; i++) {
+		for (int i = 0; i < _rows; i++) 
 			for (int j = 0; j < _cols; j++) {
-				
 				_regions[i][j] = new DefaultRegion();
-				
 			}
-		}
 		
 	}
 	
@@ -89,7 +87,7 @@ public class RegionManager implements AnimalMapView{
 	    // Vamos mirando todas las regiones entre las mínimas y máximas posiciones que cumplen lo anterior.
 	    for (int i = minX; i < maxX; i++) {
 	        for (int j = minY; j < maxY; j++) {
-	            Region region = _regions[i][j];
+	            Region region = _regions[j][i];
 	        
 	            if (region != null) {
 	             
@@ -127,10 +125,11 @@ public class RegionManager implements AnimalMapView{
 	}
 	
 	public void register_animal(Animal a) {
-	
-		// Calculamos la fila y columna en la que está el animal
-		int row = (int) a.get_position().getX()/this._region_width;
-		int col = (int) a.get_position().getY()/this._region_height;
+		
+		a.init(this);
+		
+		int col = (int) a.get_position().getX()/this._region_width;
+		int row = (int) a.get_position().getY()/this._region_height;
 		
 		_regions[row][col].add_animal(a);
 		
@@ -148,10 +147,14 @@ public class RegionManager implements AnimalMapView{
 	}
 	
 	public void update_animal_region(Animal a) {
-		int row = (int) a.get_position().getX()/this._region_height;
-		int col = (int) a.get_position().getY()/this._region_width;
+		int row = (int) a.get_position().getY()/this._region_height;
+		int col = (int) a.get_position().getX()/this._region_width;
 		
-		
+	/*	if (row == -6) {
+			System.out.println("kkk");
+		}
+	*/		
+			
 		Region oldR = _animal_region.get(a);
 		Region check = _regions[row][col];
 		

@@ -8,7 +8,7 @@ import simulator.model.SelectionStrategy;
 public class SelectFirstBuilder extends Builder<SelectionStrategy>{
 
 	public SelectFirstBuilder() {
-		super("SelectFirst", "");
+		super("first", "{}");
 		// TODO Auto-generated constructor stub
 	}
 

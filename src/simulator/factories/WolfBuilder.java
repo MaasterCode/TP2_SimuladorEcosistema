@@ -15,24 +15,24 @@ public class WolfBuilder extends Builder<Animal>{
 	Factory<SelectionStrategy> strategy_factory;
 	
 	public WolfBuilder( Factory<SelectionStrategy> select_strategy_factory) {
-		super("Wolf", "");
+		super("wolf", "{}");
 		this.strategy_factory = select_strategy_factory;
 	}
 
 	@Override
 	protected Wolf create_instance(JSONObject data) {
 		SelectionStrategy mate_strategy = new SelectFirst();
-		SelectionStrategy danger_strategy = new SelectFirst();
+		SelectionStrategy hunt_strategy = new SelectFirst();
 		Vector2D pos = null;
 		if (data.has("mate_strategy")) {
 			mate_strategy = this.strategy_factory.create_instance(data.getJSONObject("mate_strategy"));
 		}
-		if (data.has("danger_strategy")) {
-			danger_strategy = this.strategy_factory.create_instance(data.getJSONObject("danger_strategy"));
+		if (data.has("hunter_strategy")) {
+			hunt_strategy = this.strategy_factory.create_instance(data.getJSONObject("hunter_strategy"));
 		}
 		
 		if( data.has("pos")) {
-			JSONObject pos_json = data.getJSONObject("data").getJSONObject("pos");
+			JSONObject pos_json = data.getJSONObject("pos");
 			
 			  // Extraer los valores de x_range y y_range
 	        JSONArray xRange = pos_json.getJSONArray("x_range");
@@ -43,7 +43,7 @@ public class WolfBuilder extends Builder<Animal>{
 	        pos = new  Vector2D(x,y);
 	        
 		}
-		return new Wolf(mate_strategy, danger_strategy, pos);
+		return new Wolf(mate_strategy, hunt_strategy, pos);
 	}
 
 }

@@ -50,10 +50,12 @@ public class Main {
 			_desc = modeDesc;
 		}
 
+		@SuppressWarnings("unused")
 		public String get_tag() {
 			return _tag;
 		}
 
+		@SuppressWarnings("unused")
 		public String get_desc() {
 			return _desc;
 		}
@@ -62,10 +64,12 @@ public class Main {
 	// default values for some parameters
 	//
 	private final static Double _default_time = 10.0; // in seconds
+	private final static Double _default_delta_time = 0.03;
 
 	// some attributes to stores values corresponding to command-line parameters
 	//
 	private static Double _time = null;
+	private static Double _delta_time = null;
 	private static String _in_file = null;
 	private static String _out_file = null;
 	private static boolean sv = false;
@@ -89,6 +93,7 @@ public class Main {
 		CommandLineParser parser = new DefaultParser();
 		try {
 			CommandLine line = parser.parse(cmdLineOptions, args);
+	
 			parse_help_option(line, cmdLineOptions);
 			parse_in_file_option(line);
 			parse_out_file_option(line);
@@ -129,6 +134,16 @@ public class Main {
 						+ _default_time + ".")
 				.build());
 
+		
+		cmdLineOptions.addOption(Option.builder("o").longOpt("output").hasArg().desc("Output file, where output is written."
+				+ "").build());
+		
+		cmdLineOptions.addOption(Option.builder("sv").longOpt("simple-viewer").desc("Show the viewer window in console mode."
+				+ "").build());
+		
+		cmdLineOptions.addOption(Option.builder("dt").longOpt("delta-time").hasArg().desc("A double representing actual time, in "
+				+ "seconds, per simulation step. Default value:" + _time + " ").build());
+		
 		return cmdLineOptions;
 	}
 
@@ -166,10 +181,10 @@ public class Main {
 	} 
 
 	private static void parse_delta_time_option(CommandLine line) throws ParseException{
-		String t = line.getOptionValue("dt", _time.toString());
+		String t = line.getOptionValue("dt", _default_delta_time.toString());
 		try {
-			_time = Double.parseDouble(t);
-			assert (_time >= 0 && _time < _default_time);
+			_delta_time = Double.parseDouble(t);
+			assert (_delta_time >= 0 && _delta_time < _default_time);
 		} catch (Exception e) {
 			throw new ParseException("Invalid value for time: " + t);
 		}
@@ -219,7 +234,7 @@ public class Main {
 		
 		cont.load_data(jis);
 		
-		cont.run(_default_time, _time, sv, os);
+		cont.run(_time, _delta_time, sv, os);
 		
 	}
 

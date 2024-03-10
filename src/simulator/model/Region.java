@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.json.JSONObject;
 
-import simulator.model.Alimentation.Diet;
 
 public abstract class Region implements Entity, FoodSupplier, RegionInfo{
 
@@ -44,18 +43,6 @@ public abstract class Region implements Entity, FoodSupplier, RegionInfo{
 				 .put("animals",this._animal_list);
 		return value;
 	}
-	
-/*	protected int nHerbivores() {
-		int n = 0;
-		
-		for (int i = 0; i < this._animal_list.size(); i++) {
-			if (this._animal_list.get(i).get_diet() == Diet.HERBIVORE)
-				n++;
-		}
-		
-		return n;
-	}
-*/	
 	
 	/* Métodos de las interfaces que "implementa":
 	
