@@ -96,7 +96,7 @@ public class Controller {
 		sim_json.put("out", this._sim.as_JSON());
 
 		PrintStream p = new PrintStream(out);
-		p.println(sim_json);
+		p.println(sim_json.toString(2));
 		
 		if (sv) view.close();
 	}

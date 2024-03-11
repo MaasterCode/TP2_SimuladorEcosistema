@@ -79,9 +79,6 @@ public class Main {
 	private static Factory<Animal> animals_factory;
 	private static Factory<Region> regions_factory;
 	
-/*	private static Simulator sim;
-	private static Map<String, Factory> factorias = new HashMap<String, Factory>();
-*/
 	private static void parse_args(String[] args) {
 
 		// define the valid command line options
@@ -110,7 +107,7 @@ public class Main {
 				for (String o : remaining)
 					error += (" " + o);
 				throw new ParseException(error);
-			}
+			}	
 
 		} catch (ParseException e) {
 			System.err.println(e.getLocalizedMessage());

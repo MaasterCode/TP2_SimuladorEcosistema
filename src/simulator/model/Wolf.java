@@ -5,6 +5,15 @@ import simulator.misc.Vector2D;
 
 public class Wolf extends Animal {
 
+	
+	private static final double MAX_WOLF_AGE = 14.0;
+	private final static double ENERGY_DECREASE = 18.0;
+	private final static double DESIRE_INCREASE = 30.0;
+	private final static double DESIRE_LIMIT = 65.0;
+	private final static double ENERGY_LIMIT = 50.0;
+	private final static double MULTIPLIER = 1.2;
+	private final static double MOVE_MULTIPLIER = 3.0;
+	
 	protected Animal _hunt_target;
 	protected SelectionStrategy _hunting_strategy;
 
@@ -36,14 +45,14 @@ public class Wolf extends Animal {
 			changeToNormalState();
 		}
 
-		if (this._energy == 0.0 || this._age > 14.0)
+		if (this._energy == MIN_ENERGY || this._age > MAX_WOLF_AGE)
 			this._state = State.DEAD;
 
 		if (this._state != State.DEAD) {
 			
 			double newEnergy = this._energy + this._region_mngr.get_food(this, dt);
 
-			this._energy = Utils.constrain_value_in_range(newEnergy, 0, 100);
+			this._energy = Utils.constrain_value_in_range(newEnergy, MIN_INTERVAL, MAX_INTERVAL);
 
 		}
 
@@ -51,7 +60,7 @@ public class Wolf extends Animal {
 
 	private void normalLogic(double dt) {
 
-		if (this._pos.distanceTo(this._dest) < 8.0) {
+		if (this._pos.distanceTo(this._dest) < MAX_DISTANCE) {
 
 			double x = Utils._rand.nextDouble(this._region_mngr.get_width());
 			double y = Utils._rand.nextDouble(this._region_mngr.get_height());
@@ -63,20 +72,20 @@ public class Wolf extends Animal {
 
 		this._age += dt;
 
-		double newEnergy = this._energy - 18.0 * dt;
-		this._energy = Utils.constrain_value_in_range(newEnergy, 0, 100);
+		double newEnergy = this._energy - ENERGY_DECREASE * dt;
+		this._energy = Utils.constrain_value_in_range(newEnergy, MIN_INTERVAL, MAX_INTERVAL);
 
-		double newDesire = this._desire + 30.0 * dt;
-		this._desire = Utils.constrain_value_in_range(newDesire, 0, 100);
+		double newDesire = this._desire + DESIRE_INCREASE * dt;
+		this._desire = Utils.constrain_value_in_range(newDesire, MIN_INTERVAL, MAX_INTERVAL);
 
 	}
 
 	private void normalChangeLogic(){
 		
-		if (this._energy < 50.0) 
+		if (this._energy < ENERGY_LIMIT) 
 			changeToHungerState();
 		
-		else if (this._desire > 65.0) 
+		else if (this._desire > DESIRE_LIMIT) 
 			changeToMateState();
 		
 	}
@@ -94,7 +103,7 @@ public class Wolf extends Animal {
 		if ((this._hunt_target == null) || (this._hunt_target.get_state() == State.DEAD)
 				|| (this._pos.distanceTo(this._hunt_target.get_position()) > this._sight_range))
 			this._hunt_target = this._hunting_strategy.select(this,
-					this._region_mngr.get_animals_in_range(this, animal -> animal.get_diet() == Diet.HERBIVORE));
+					this._region_mngr.get_animals_in_range(this, animal -> animal.get_diet().equals(Diet.HERBIVORE)));
 
 		if (this._hunt_target == null)
 			this.normalLogic(dt);
@@ -103,25 +112,25 @@ public class Wolf extends Animal {
 
 			this._dest = this._hunt_target.get_position();
 
-			this.move(3.0 * _speed * dt * Math.exp((_energy - 100.0) * 0.007));
+			this.move(MOVE_MULTIPLIER * _speed * dt * Math.exp((_energy - 100.0) * 0.007));
 
 			this._age += dt;
 
-			double newEnergy = this._energy - 18.0 * 1.2 * dt;
-			this._energy = Utils.constrain_value_in_range(newEnergy, 0, 100);
+			double newEnergy = this._energy - (ENERGY_DECREASE * MULTIPLIER * dt);
+			this._energy = Utils.constrain_value_in_range(newEnergy, MIN_INTERVAL, MAX_INTERVAL);
 
-			double newDesire = this._desire + 30.0 * dt;
-			this._desire = Utils.constrain_value_in_range(newDesire, 0, 100);
+			double newDesire = this._desire + DESIRE_INCREASE * dt;
+			this._desire = Utils.constrain_value_in_range(newDesire, MIN_INTERVAL, MAX_INTERVAL);
 
-			if (this._pos.distanceTo(this._hunt_target.get_position()) < 8.0) {
+			if (this._pos.distanceTo(this._hunt_target.get_position()) < MAX_DISTANCE) {
 
 				this._hunt_target.set_state(State.DEAD);
 
 				this._hunt_target = null;
 
-				newEnergy = this._energy + 50.0;
+				newEnergy = this._energy + ENERGY_LIMIT;
 
-				this._energy = Utils.constrain_value_in_range(newEnergy, 0, 100);
+				this._energy = Utils.constrain_value_in_range(newEnergy, MIN_INTERVAL, MAX_INTERVAL);
 
 			}
 
@@ -130,8 +139,8 @@ public class Wolf extends Animal {
 
 	private void hungerChangeLogic() {
 		
-		if (this._energy > 50.0) {
-			if (this._desire < 65.0) 
+		if (this._energy > ENERGY_LIMIT) {
+			if (this._desire < DESIRE_LIMIT) 
 				changeToNormalState();
 			else
 				changeToMateState();
@@ -148,14 +157,14 @@ public class Wolf extends Animal {
 	}
 	
 	private void mateState(double dt) {
-
+		
 		if (this._mate_target != null && (this._mate_target.get_state() == State.DEAD
 				|| this._mate_target.get_position().distanceTo(this._pos) > this._sight_range))
 			this._mate_target = null;
 
 		if (this._mate_target == null) {
 			this._mate_target = this._mate_strategy.select(this,
-					this._region_mngr.get_animals_in_range(this, animal -> animal.get_genetic_code() == "Wolf"));
+					this._region_mngr.get_animals_in_range(this, animal -> animal.get_genetic_code().equals("Wolf")));
 			
 			if (this._mate_target == null)
 				this.normalLogic(dt);
@@ -164,25 +173,28 @@ public class Wolf extends Animal {
 		if (this._mate_target != null) {
 
 			this._dest = this._mate_target.get_position();
-			this.move(3.0 * this._speed * dt * Math.exp(this._energy - 100.0) * 0.007);
+			
+			this.move(MOVE_MULTIPLIER * this._speed * dt * Math.exp(this._energy - 100.0) * 0.007);
+			
 			this._age += dt;
-			double newEnergy = this._energy - 18.0 * 1.2 * dt;
-			this._energy = Utils.constrain_value_in_range(newEnergy, 0, 100);
-			double newDesire = this._desire + 30.0 * dt;
-			this._desire = Utils.constrain_value_in_range(newDesire, 0, 100);
-			if (this._pos.distanceTo(this._mate_target.get_position()) < 8.0) {
+			
+			double newEnergy = this._energy - (ENERGY_DECREASE * MULTIPLIER * dt);
+			this._energy = Utils.constrain_value_in_range(newEnergy, MIN_INTERVAL, MAX_INTERVAL);
+			
+			double newDesire = this._desire + DESIRE_INCREASE * dt;
+			this._desire = Utils.constrain_value_in_range(newDesire, MIN_INTERVAL, MAX_INTERVAL);
+			
+			if (this._pos.distanceTo(this._mate_target.get_position()) < MAX_DISTANCE) {
 
 				this._desire = 0.0;
 				this._mate_target.set_desire(0.0);
 
 				if (this._baby == null) {
-					if (Utils._rand.nextDouble() < 0.9) 
+					if (Utils._rand.nextDouble() < PROBABILITY) 
 						this._baby = new Wolf(this, this._mate_target);
 				}
 
-				newEnergy = this._energy - 10.0;
-				this._energy = Utils.constrain_value_in_range(newEnergy, 0, 100);
-
+				
 				this._mate_target = null;
 			}
 
@@ -192,11 +204,11 @@ public class Wolf extends Animal {
 
 	private void mateChangeLogic() {
 		
-		if (this._energy < 50.0) 
+		if (this._energy < ENERGY_LIMIT) 
 			changeToHungerState();
 		
 		else {
-			if (this._desire < 65.0) 
+			if (this._desire < DESIRE_LIMIT) 
 				changeToNormalState();
 		}
 		

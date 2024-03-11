@@ -81,23 +81,21 @@ public class RegionManager implements AnimalMapView{
 	    // X's e Y's que están dentro del rango de visión del animal "a", es decir, las posiciones mínimas y máximas de la lista de regiones que están dentro del rango de visión.
 	    int minX = Math.max(0, (int) (a.get_position().getX() - a.get_sight_range()) / get_region_width());
 	    int minY = Math.max(0, (int) (a.get_position().getY() - a.get_sight_range()) / get_region_height());
-	    int maxX = Math.min(get_cols(), (int) (a.get_position().getX() + a.get_sight_range()) / get_region_width());
-	    int maxY = Math.min(get_rows(), (int) (a.get_position().getY() + a.get_sight_range()) / get_region_height());
+	    int maxX = Math.min(get_cols()-1, (int) (a.get_position().getX() + a.get_sight_range()) / get_region_width());
+	    int maxY = Math.min(get_rows()-1, (int) (a.get_position().getY() + a.get_sight_range()) / get_region_height());
 
 	    // Vamos mirando todas las regiones entre las mínimas y máximas posiciones que cumplen lo anterior.
-	    for (int i = minX; i < maxX; i++) {
-	        for (int j = minY; j < maxY; j++) {
+	    for (int i = minX; i <= maxX; i++) {
+	        for (int j = minY; j <= maxY; j++) {
 	            Region region = _regions[j][i];
 	        
-	            if (region != null) {
-	             
 	                for (Animal animal : region.getAnimals()) {
 	                    // Está en el rango de visión del animal? && cumple la condición del filter?
 	                    if (animalInRange(a, animal) && filter.test(animal)) 
 	                        animalsInRange.add(animal);
 	                    
 	                }
-	            }
+	            
 	        }
 	    }
 	    return animalsInRange;
@@ -175,7 +173,7 @@ public class RegionManager implements AnimalMapView{
 		}
 		
 	}
-
+	
 	public JSONObject as_JSON() {
 	    JSONObject rs = new JSONObject(); // Objeto JSON para almacenar todas las regiones
 	    

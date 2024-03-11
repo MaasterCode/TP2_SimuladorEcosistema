@@ -70,6 +70,7 @@ public class Simulator {
 
 		this.animal_list.removeAll(deadAnimals);
 
+		
 		for(Animal a: this.animal_list) {
 			a.update(dt);
 			

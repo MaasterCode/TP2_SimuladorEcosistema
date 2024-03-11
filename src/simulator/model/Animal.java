@@ -7,6 +7,13 @@ import simulator.misc.Vector2D;
 
 public abstract class Animal implements Entity, AnimalInfo {
 
+	protected static final double MIN_INTERVAL = 0.0;
+	protected static final double MAX_INTERVAL = 100.0;
+	protected final static double MIN_ENERGY = 0.0;
+	protected final static double MAX_DISTANCE = 8.0;
+	protected final static double PROBABILITY = 0.9;
+	
+	
 	protected String _genetic_code;
 	protected Diet _diet;
 	protected State _state;
