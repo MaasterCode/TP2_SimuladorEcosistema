@@ -4,6 +4,7 @@ import org.json.JSONObject;
 
 import simulator.misc.Utils;
 import simulator.misc.Vector2D;
+import simulator.model.Alimentation.Diet;
 
 public abstract class Animal implements Entity, AnimalInfo {
 
@@ -74,10 +75,8 @@ public abstract class Animal implements Entity, AnimalInfo {
 		_genetic_code = p1.get_genetic_code();
 		_diet = p1.get_diet();
 		_energy = (p1.get_energy() + p2.get_energy())/2;
-		_pos = p1.get_position().plus(Vector2D.get_random_vector(-1,1).scale(60.0*(Utils._rand
-				.nextGaussian()+1)));
-		_sight_range = Utils.get_randomized_parameter
-				((p1.get_sight_range()+p2.get_sight_range())/2, 0.2);
+		_pos = p1.get_position().plus(Vector2D.get_random_vector(-1,1).scale(60.0*(Utils._rand.nextGaussian()+1)));
+		_sight_range = Utils.get_randomized_parameter((p1.get_sight_range()+p2.get_sight_range())/2, 0.2);
 		_speed = Utils.get_randomized_parameter((p1.get_speed()+p2.get_speed())/2, 0.2);
 		
 		_mate_strategy = p2.get_mate_strategy();

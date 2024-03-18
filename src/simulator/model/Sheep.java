@@ -2,6 +2,7 @@ package simulator.model;
 
 import simulator.misc.Utils;
 import simulator.misc.Vector2D;
+import simulator.model.Alimentation.Diet;
 
 public class Sheep extends Animal {
 
@@ -34,8 +35,7 @@ public class Sheep extends Animal {
 	@Override
 	public void update(double dt) {
 
-		if (this._state.equals(State.DEAD))
-			return;
+		if (this._state == State.DEAD) return;
 
 		this.changeState(dt);
 
@@ -45,8 +45,10 @@ public class Sheep extends Animal {
 			changeToNormalState();
 		}
 
-		if (this._energy == MIN_ENERGY || this._age > MAX_SHEEP_AGE)
+		if (this._energy == MIN_ENERGY || this._age > MAX_SHEEP_AGE) {
 			this._state = State.DEAD;
+		}
+			
 
 		if (this._state != State.DEAD) {
 			double newEnergy = this._energy + this._region_mngr.get_food(this, dt);
@@ -80,15 +82,17 @@ public class Sheep extends Animal {
 
 	private void normalChangeLogic() {
 
-		if (this._danger_source == null)
-			this._danger_source = this._danger_strategy.select(this,
-					this._region_mngr.get_animals_in_range(this, animal -> animal.get_diet() == Diet.CARNIVORE));
+		if (this._danger_source == null) {
+			this._danger_source = this._danger_strategy.select(this, this._region_mngr.get_animals_in_range(this, animal -> animal.get_diet() == Diet.CARNIVORE));
+		}
+			
 
-		if (this._danger_source != null)
+		if (this._danger_source != null) {
 			changeToDangerState();
-
-		else if (this._desire > DESIRE_LIMIT)
+		} else if (this._desire > DESIRE_LIMIT) {
 			changeToMateState();
+		}
+			
 
 	}
 
@@ -102,13 +106,14 @@ public class Sheep extends Animal {
 
 	private void dangerLogic(double dt) {
 
-		if (this._danger_source != null && this._danger_source.get_state() == State.DEAD)
+		if (this._danger_source != null && this._danger_source.get_state() == State.DEAD) {
 			this._danger_source = null;
+		}
+			
 
-		if (this._danger_source == null)
+		if (this._danger_source == null) {
 			this.normalLogic(dt);
-
-		else {
+		} else {
 			this._dest = this._pos.plus(_pos.minus(_danger_source.get_position()).direction());
 
 			this.move(MOVE_MULTIPLIER * this._speed * dt * Math.exp((this._energy - 100.0) * 0.007));
@@ -127,10 +132,8 @@ public class Sheep extends Animal {
 
 	private void dangerChangeLogic() {
 
-		if (this._danger_source == null
-				|| this._danger_source.get_position().distanceTo(this.get_position()) > this._sight_range) {
-			this._danger_source = this._danger_strategy.select(this,
-					this._region_mngr.get_animals_in_range(this, animal -> animal.get_diet() == Diet.CARNIVORE));
+		if (this._danger_source == null || this._danger_source.get_position().distanceTo(this.get_position()) > this._sight_range) {
+			this._danger_source = this._danger_strategy.select(this, this._region_mngr.get_animals_in_range(this, animal -> animal.get_diet() == Diet.CARNIVORE));
 
 			if (this._danger_source == null) {
 
@@ -156,22 +159,19 @@ public class Sheep extends Animal {
 
 	private void mateLogic(double dt) {
 
-		if (this._mate_target != null && (this._mate_target.get_state() == State.DEAD
-				|| this._mate_target.get_position().distanceTo(this.get_position()) > this._sight_range))
+		if (this._mate_target != null && (this._mate_target.get_state() == State.DEAD || this._mate_target.get_position().distanceTo(this._pos) > this._sight_range)) {
 			this._mate_target = null;
-
-		if (this._mate_target == null) {
-			this._mate_target = this._mate_strategy.select(this,
-					this._region_mngr.get_animals_in_range(this, animal -> animal.get_genetic_code() == "Sheep"));
-
-			if (this._mate_target == null)
-				this.normalLogic(dt);
-		
 		}
-
-
-		if (this._mate_target != null) {
-
+			
+		if (this._mate_target == null) {
+			this._mate_target = this._mate_strategy.select(this, this._region_mngr.get_animals_in_range(this, animal -> animal.get_genetic_code() == "Sheep"));
+			
+		} 
+		
+		if (this._mate_target == null)  {
+			this.normalLogic(dt);
+			
+		} else if (this._mate_target != null) {
 			this._dest = this._mate_target.get_position();
 
 			this.move(MOVE_MULTIPLIER * this._speed * dt * Math.exp((this._energy - 100.0) * 0.007));
@@ -190,11 +190,9 @@ public class Sheep extends Animal {
 				
 				this._mate_target.set_desire(0.0);
 				
-				if (this._baby == null && Utils._rand.nextDouble() < PROBABILITY)
+				if (this._baby == null && Utils._rand.nextDouble() < PROBABILITY) {
 					this._baby = new Sheep(this, this._mate_target);
-
-				newEnergy = this._energy - 10.0;
-				this._energy = Utils.constrain_value_in_range(newEnergy, MIN_INTERVAL, MAX_INTERVAL);
+				}
 
 				
 				this._mate_target = null;

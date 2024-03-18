@@ -79,10 +79,10 @@ public class RegionManager implements AnimalMapView{
 	    List<Animal> animalsInRange = new ArrayList<>();
 
 	    // X's e Y's que están dentro del rango de visión del animal "a", es decir, las posiciones mínimas y máximas de la lista de regiones que están dentro del rango de visión.
-	    int minX = Math.max(0, (int) (a.get_position().getX() - a.get_sight_range()) / get_region_width());
-	    int minY = Math.max(0, (int) (a.get_position().getY() - a.get_sight_range()) / get_region_height());
-	    int maxX = Math.min(get_cols()-1, (int) (a.get_position().getX() + a.get_sight_range()) / get_region_width());
-	    int maxY = Math.min(get_rows()-1, (int) (a.get_position().getY() + a.get_sight_range()) / get_region_height());
+	    int minX = Math.max(0, (int) ((a.get_position().getX() - a.get_sight_range()) / get_region_width()));
+	    int minY = Math.max(0, (int) ((a.get_position().getY() - a.get_sight_range()) / get_region_height()));
+	    int maxX = Math.min(get_cols()-1, (int) ((a.get_position().getX() + a.get_sight_range()) / get_region_width()));
+	    int maxY = Math.min(get_rows()-1, (int) ((a.get_position().getY() + a.get_sight_range()) / get_region_height()));
 
 	    // Vamos mirando todas las regiones entre las mínimas y máximas posiciones que cumplen lo anterior.
 	    for (int i = minX; i <= maxX; i++) {
@@ -91,7 +91,7 @@ public class RegionManager implements AnimalMapView{
 	        
 	                for (Animal animal : region.getAnimals()) {
 	                    // Está en el rango de visión del animal? && cumple la condición del filter?
-	                    if (animalInRange(a, animal) && filter.test(animal)) 
+	                    if (animalInRange(a, animal) && filter.test(animal) && animal != a) 
 	                        animalsInRange.add(animal);
 	                    
 	                }
@@ -102,7 +102,7 @@ public class RegionManager implements AnimalMapView{
 	}
 
 	public boolean animalInRange(Animal a, Animal b) {
-	    return a.get_position().distanceTo(b.get_position()) < a.get_sight_range();
+	    return a.get_position().distanceTo(b.get_position()) <= a.get_sight_range();
 	}
 
 	
@@ -126,8 +126,8 @@ public class RegionManager implements AnimalMapView{
 		
 		a.init(this);
 		
-		int col = (int) a.get_position().getX()/this._region_width;
-		int row = (int) a.get_position().getY()/this._region_height;
+		int col = (int) (a.get_position().getX()/this._region_width);
+		int row = (int) (a.get_position().getY()/this._region_height);
 		
 		_regions[row][col].add_animal(a);
 		
@@ -145,20 +145,28 @@ public class RegionManager implements AnimalMapView{
 	}
 	
 	public void update_animal_region(Animal a) {
-		int row = (int) a.get_position().getY()/this._region_height;
-		int col = (int) a.get_position().getX()/this._region_width;
+		int row = (int) (a.get_position().getY()/this._region_height);
+		int col = (int) (a.get_position().getX()/this._region_width);
 			
 		Region oldR = _animal_region.get(a);
 		Region check = _regions[row][col];
 		
-		if (oldR == null ||!oldR.equals(check)) {
+		if (oldR != check) {
+			oldR.remove_animal(a);
+			check.add_animal(a);
+			this._animal_region.remove(a, oldR);
+			this._animal_region.put(a, check);
+		}
+		
+		/*
+		if (oldR == null || !oldR.equals(check)) {
 			
 			this._animal_region.put(a, check);
 			
 			if (oldR != null) 
 				this._animal_region.remove(a, oldR);	
 			
-		}
+		}*/
 		
 	}
 	
