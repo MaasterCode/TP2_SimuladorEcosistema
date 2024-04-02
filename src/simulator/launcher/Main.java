@@ -233,6 +233,7 @@ public class Main {
 		
 		cont.run(_time, _delta_time, sv, os);
 		
+		os.close();
 	}
 
 	private static void start_GUI_mode() throws Exception {
