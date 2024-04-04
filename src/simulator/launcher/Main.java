@@ -69,15 +69,15 @@ public class Main {
 	// some attributes to stores values corresponding to command-line parameters
 	//
 	private static Double _time = null;
-	private static Double _delta_time = null;
+	public static Double _delta_time = null;
 	private static String _in_file = null;
 	private static String _out_file = null;
 	private static boolean sv = false;
 	private static ExecMode _mode = ExecMode.BATCH;
 	
-	private static Factory<SelectionStrategy> selection_strategy_factory;
-	private static Factory<Animal> animals_factory;
-	private static Factory<Region> regions_factory;
+	public static Factory<SelectionStrategy> selection_strategy_factory;
+	public static Factory<Animal> animals_factory;
+	public static Factory<Region> regions_factory;
 	
 	private static void parse_args(String[] args) {
 
@@ -233,6 +233,7 @@ public class Main {
 		
 		cont.run(_time, _delta_time, sv, os);
 		
+		os.close();
 	}
 
 	private static void start_GUI_mode() throws Exception {

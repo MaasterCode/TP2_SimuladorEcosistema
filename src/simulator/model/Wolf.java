@@ -165,13 +165,14 @@ public class Wolf extends Animal {
 		}
 			
 		if (this._mate_target == null) {
-			this._mate_target = this._mate_strategy.select(this, this._region_mngr.get_animals_in_range(this, animal -> animal.get_genetic_code().equalsIgnoreCase("Wolf")));
+			this._mate_target = this._mate_strategy.select(this, this._region_mngr.get_animals_in_range(this, animal -> animal.get_genetic_code() == this.get_genetic_code()));
 	
+			if (this._mate_target == null) {
+				this.normalLogic(dt);
+			}
 		} 
 		
-		if (this._mate_target == null) {
-			this.normalLogic(dt);
-		} else if (this._mate_target != null) {
+	 else if (this._mate_target != null) {
 
 			this._dest = this._mate_target.get_position();
 
