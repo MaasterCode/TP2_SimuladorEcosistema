@@ -23,18 +23,7 @@ public class Controller {
 	}
 	
 	public void load_data(JSONObject data) {
-		/*if (data.has("regions")) {
-			JSONArray row = data.getJSONArray("row");
-			JSONArray col = data.getJSONArray("col");
-			JSONObject spec = data.getJSONObject("spec");
-			
-			for(int i = row.getInt(0); i < row.getInt(1); i++) {
-				for(int j = col.getInt(0); j < col.getInt(1); j++) {
-					this._sim.set_region(i, j, spec);
-				}
-			}
-		}
-		*/
+
 		if (data.has("regions"))
 			load_regions(data.getJSONArray("regions"));
 		

@@ -123,5 +123,12 @@ public class Simulator implements Observable<EcoSysObserver> {
 		observer_list.remove(o);
 
 	}
+	
+	public void notify_on_advanced(double dt) {
+		List<AnimalInfo> animals = new ArrayList<>(_animal_list);
+		for (EcoSysObserver ob : observer_list) {
+			ob.onReset(current_time, reg_manager, animals);
+		}
+	}
 
 }
