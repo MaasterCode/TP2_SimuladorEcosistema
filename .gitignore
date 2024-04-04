@@ -1,3 +1,8 @@
+<<<<<<< HEAD
 /bin/
 /resources/tmp
 .classpath
+=======
+/bin
+/resources/tmp
+>>>>>>> 25e4f1e780cb1716a5d105d966b9afff6a0f906d
