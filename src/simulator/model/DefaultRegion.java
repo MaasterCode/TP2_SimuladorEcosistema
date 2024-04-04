@@ -20,6 +20,10 @@ public class DefaultRegion extends Region {
 		 return f;
 	}
 	
+	public String toString() {
+		return "Default region";
+	}
+	
 	
 	
 }

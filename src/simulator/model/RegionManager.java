@@ -3,6 +3,7 @@ package simulator.model;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.function.Predicate;
 
@@ -210,6 +211,20 @@ public class RegionManager implements AnimalMapView{
 	    rs.put("regiones", rArray); // Agregar el array de regiones al objeto JSON principal
 	    
 	    return rs; // Devolver el objeto JSON que representa todas las regiones
+	}
+
+	@Override
+	public Iterator<RegionData> iterator() {
+		ArrayList<RegionData> regionDataList = new ArrayList<RegionData>();
+		 for (int i = 0; i < _rows; i++) {
+		        for (int j = 0; j < _cols; j++) {
+		        	RegionInfo region = _regions[i][j];
+		        	RegionData regionData = new RegionData(i, j, region);
+		        	regionDataList.add(regionData);
+		        }
+		 }
+		        
+		return regionDataList.iterator();
 	}
 
 	

@@ -11,6 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import simulator.model.AnimalInfo;
+import simulator.model.EcoSysObserver;
 import simulator.model.MapInfo;
 import simulator.model.Simulator;
 public class Controller {
@@ -109,5 +110,29 @@ public class Controller {
 		return ol;
 	}
 	
+	public void reset(int cols, int rows, int width, int height) {
+		_sim.reset(cols, rows, width, height);
+	}
 	
+	public void set_regions(JSONObject rs) {
+		if (rs.has("regions")) {
+			JSONArray jsarr = rs.getJSONArray("regions");
+			for (int i = 0; i < jsarr.length(); i++) {
+				_sim.set_region(0, 0, jsarr.getJSONObject(i));
+			}
+			
+		}
+	}
+	
+	public void advance(double dt) {
+		_sim.advance(dt);
+	}
+	
+	public void addObserver(EcoSysObserver o) {
+		_sim.addObserver(o);
+	}
+	
+	public void removeObserver(EcoSysObserver o) {
+		_sim.removeObserver(o);
+	}
 }
