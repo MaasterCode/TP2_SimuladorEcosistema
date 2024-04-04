@@ -67,8 +67,15 @@ public class Controller {
 			JSONArray col = ob.getJSONArray("col");
 			JSONObject spec = ob.getJSONObject("spec");
 			
-			for (int j = 0; j < row.length(); j++) {
-				for (int k = 0; k < col.length(); k++) {
+			
+			int rf = row.getInt(0);
+			int rt = row.getInt(1);
+			
+			int cf = col.getInt(0);
+			int ct = col.getInt(1);
+			
+			for (int j = rf; j <=rt; j++) {
+				for (int k = cf; k <= ct; k++) {
 					this._sim.set_region(j, k, spec);
 				}
 			}
